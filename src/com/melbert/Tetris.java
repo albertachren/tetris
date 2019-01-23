@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 public class Tetris extends JFrame {
     static int n = 0;
+    static int[] nn = {0, 0};
 
     public Tetris(TetrisGame tetrisGame) {
         JButton btn1;
@@ -23,7 +24,10 @@ public class Tetris extends JFrame {
         btn1.addActionListener(e -> {
             System.out.println("dank memes");
             tetrisPanel.pixels.get(n).setBackground(Color.red);
-
+            try {
+                tetrisPanel.pixelsArr[nn[0]][nn[1]].setBackground(Color.red);
+            } catch (Exception b) {
+            }
         });
         c.gridx = 1;
         c.gridy = 0;
@@ -75,8 +79,14 @@ public class Tetris extends JFrame {
     public static void main(String[] args) {
         Tetris tetris = new Tetris(new TetrisGame(0, 0));
         Scanner sc = new Scanner(System.in);
-        while(true){
-            tetris.n = sc.nextInt();
+        while (true) {
+            String[] jujj = sc.nextLine().split(" ");
+            try {
+                nn[0] = Integer.parseInt(jujj[0]);
+                nn[1] = Integer.parseInt(jujj[1]);
+
+            } catch (Exception a) {
+            }
         }
 
     }
