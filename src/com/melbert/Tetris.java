@@ -25,7 +25,8 @@ public class Tetris extends JFrame {
             System.out.println("dank memes");
             tetrisPanel.pixels.get(n).setBackground(Color.red);
             try {
-                tetrisPanel.pixelsArr[nn[0]][nn[1]].setBackground(Color.red);
+                //tetrisPanel.pixelsArr[nn[0]][nn[1]].setBackground(Color.red);
+                tetrisPanel.setGraphics(new TetrisArray(tetrisPanel.getRes()));
             } catch (Exception b) {
             }
         });
@@ -35,12 +36,48 @@ public class Tetris extends JFrame {
         c.fill = 0;
         add(btn1, c);
 
+        JButton btn2 = new JButton("clear");
+        btn2.addActionListener(e -> {
+            System.out.println("dank memes");
+            tetrisPanel.pixels.get(n).setBackground(Color.red);
+            try {
+                tetrisPanel.clearGraphics();
+            } catch (Exception b) {
+            }
+        });
+        c.gridx = 1;
+        c.gridy = 1;
+        c.anchor = GridBagConstraints.CENTER;
+        c.fill = 0;
+        add(btn2, c);
+
+        JButton btn3 = new JButton("jujjujj");
+        btn3.addActionListener(e -> {
+            System.out.println("dank memes");
+            tetrisPanel.pixels.get(n).setBackground(Color.red);
+            try {
+                for (int i = 0; i < 10000; i++) {
+                    tetrisPanel.setGraphics(new TetrisArray(tetrisPanel.getRes()));
+
+                }
+            } catch (Exception b) {
+            }
+        });
+        c.gridx = 1;
+        c.gridy = 2;
+        c.anchor = GridBagConstraints.CENTER;
+        c.fill = 0;
+        add(btn3, c);
+
         game = tetrisPanel;
         c.gridx = 0;
         c.gridy = 0;
+        c.gridheight = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(10, 10, 10, 10);
         add(game, c);
+
+        c.gridheight = GridBagConstraints.RELATIVE; //reset
 
         //game.setBackground(Color.BLUE);
         game.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));

@@ -1,5 +1,7 @@
 package com.melbert;
 
+import java.util.Random;
+
 public class TetrisArray {
 
     int[][] data;
@@ -11,7 +13,9 @@ public class TetrisArray {
         data = new int[res][res];
         for (int i = 0; i < res; i++) {
             for (int j = 0; j < res; j++) {
-                data[i][j] = 0;
+                Random random = new Random(); //temporary
+
+                data[i][j] = random.nextInt(2);
             }
         }
 
@@ -19,4 +23,7 @@ public class TetrisArray {
 
     void moveDown(){}
 
+    public int[][] getData() {
+        return data;
+    }
 }

@@ -3,7 +3,6 @@ package com.melbert;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TetrisPanel extends JPanel {
@@ -18,6 +17,7 @@ public class TetrisPanel extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
         this.pixels = new ArrayList<>();
         for (int i = 0; i < res * res; i++) {
+
             Border border = BorderFactory.createLineBorder(Color.black, 1);
             JPanel panel = new JPanel();
             panel.setBorder(border);
@@ -43,9 +43,30 @@ public class TetrisPanel extends JPanel {
         //System.out.println(pixelsArr[0][1].toString());
     }
 
-    void setGraphics(TetrisArray array){
+    public int getRes() {
+        return res;
     }
 
+    void setGraphics(TetrisArray array){
+        int[][] data = array.getData();
+        for (int i = 0; i < res; i++) { //loop trough graphics array
+            for (int j = 0; j < res; j++) {
+                pixelsArr[i][j].setBackground(new Color(255, 255, 255));
+                if (data[i][j] == 1) {
+                    pixelsArr[i][j].setBackground(Color.red); //if pixeldata is lit, light JPanel pixel
+                }
+            }
+        }
+    }
+
+    void clearGraphics() {
+        for (int i = 0; i < res; i++) { //loop trough graphics array
+            for (int j = 0; j < res; j++) {
+                //pixelsArr[i][j].setBackground(new Color(255,255,255));
+                pixelsArr[i][j].setBackground(new Color(255, 255, 255));
+            }
+        }
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
