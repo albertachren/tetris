@@ -9,11 +9,13 @@ import java.util.Scanner;
 public class Tetris extends JFrame {
     static int n = 0;
     static int[] nn = {0, 0};
+    TetrisArray tetrisArray;
+    TetrisPanel tetrisPanel;
 
-    public Tetris(TetrisGame tetrisGame) {
+    public Tetris() {
         JButton btn1;
         JPanel game;
-        TetrisPanel tetrisPanel = new TetrisPanel();
+        tetrisPanel = new TetrisPanel();
         setLayout(new GridBagLayout());
         setMinimumSize(new Dimension(500, 300));
         GridBagConstraints c = new GridBagConstraints();
@@ -26,7 +28,7 @@ public class Tetris extends JFrame {
             tetrisPanel.pixels.get(n).setBackground(Color.red);
             try {
                 //tetrisPanel.pixelsArr[nn[0]][nn[1]].setBackground(Color.red);
-                tetrisPanel.setGraphics(new TetrisArray(tetrisPanel.getRes()));
+                tetrisPanel.setGraphics(tetrisArray);
             } catch (Exception b) {
             }
         });
@@ -42,6 +44,7 @@ public class Tetris extends JFrame {
             tetrisPanel.pixels.get(n).setBackground(Color.red);
             try {
                 tetrisPanel.clearGraphics();
+                tetrisArray = new TetrisArray(tetrisPanel.getRes());
             } catch (Exception b) {
             }
         });
@@ -54,14 +57,8 @@ public class Tetris extends JFrame {
         JButton btn3 = new JButton("jujjujj");
         btn3.addActionListener(e -> {
             System.out.println("dank memes");
-            tetrisPanel.pixels.get(n).setBackground(Color.red);
-            try {
-                for (int i = 0; i < 10000; i++) {
-                    tetrisPanel.setGraphics(new TetrisArray(tetrisPanel.getRes()));
-
-                }
-            } catch (Exception b) {
-            }
+            tetrisArray.moveDown();
+            tetrisPanel.setGraphics(tetrisArray);
         });
         c.gridx = 1;
         c.gridy = 2;
@@ -114,8 +111,9 @@ public class Tetris extends JFrame {
     }
 
     public static void main(String[] args) {
-        Tetris tetris = new Tetris(new TetrisGame(0, 0));
+        Tetris tetris = new Tetris();
         Scanner sc = new Scanner(System.in);
+        tetris.tetrisArray = new TetrisArray(tetris.tetrisPanel.getRes());
         while (true) {
             String[] jujj = sc.nextLine().split(" ");
             try {

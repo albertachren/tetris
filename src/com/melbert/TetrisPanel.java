@@ -23,7 +23,7 @@ public class TetrisPanel extends JPanel {
             panel.setBorder(border);
             this.pixels.add(panel);
             try {
-                pixelsArr[i/res][i % res] = panel;
+                pixelsArr[i / res][i % res] = panel;
                 /*
                 System.out.println("");
                 System.out.println(i/res);
@@ -47,13 +47,15 @@ public class TetrisPanel extends JPanel {
         return res;
     }
 
-    void setGraphics(TetrisArray array){
+    void setGraphics(TetrisArray array) {
         int[][] data = array.getData();
         for (int i = 0; i < res; i++) { //loop trough graphics array
             for (int j = 0; j < res; j++) {
                 pixelsArr[i][j].setBackground(new Color(255, 255, 255));
                 if (data[i][j] == 1) {
                     pixelsArr[i][j].setBackground(Color.red); //if pixeldata is lit, light JPanel pixel
+                } else if (data[i][j] == 2) {
+                    pixelsArr[i][j].setBackground(Color.gray); //if pixeldata is lit, light JPanel pixel
                 }
             }
         }
