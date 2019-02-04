@@ -6,7 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Scanner;
 
-public class Tetris extends JFrame {
+public class Tetris extends JFrame implements KeyListener {
     static int n = 0;
     static int[] nn = {0, 0};
     TetrisArray tetrisArray;
@@ -15,6 +15,7 @@ public class Tetris extends JFrame {
     public Tetris() {
         JButton btn1;
         JPanel game;
+        this.addKeyListener(this);
         tetrisPanel = new TetrisPanel();
         setLayout(new GridBagLayout());
         setMinimumSize(new Dimension(500, 300));
@@ -23,12 +24,16 @@ public class Tetris extends JFrame {
         c.weighty = 0.1;
 
         btn1 = new JButton("play");
+        btn1.setFocusable(false);
         btn1.addActionListener(e -> {
             System.out.println("dank memes");
             tetrisPanel.pixels.get(n).setBackground(Color.red);
+
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 2, 2));
+            tetrisPanel.setGraphics(tetrisArray);
+
             try {
                 //tetrisPanel.pixelsArr[nn[0]][nn[1]].setBackground(Color.red);
-                tetrisPanel.setGraphics(tetrisArray);
             } catch (Exception b) {
             }
         });
@@ -39,6 +44,7 @@ public class Tetris extends JFrame {
         add(btn1, c);
 
         JButton btn2 = new JButton("clear");
+        btn2.setFocusable(false);
         btn2.addActionListener(e -> {
             System.out.println("dank memes");
             tetrisPanel.pixels.get(n).setBackground(Color.red);
@@ -55,10 +61,15 @@ public class Tetris extends JFrame {
         add(btn2, c);
 
         JButton btn3 = new JButton("jujjujj");
+        btn3.setFocusable(false);
         btn3.addActionListener(e -> {
             System.out.println("dank memes");
-            tetrisArray.moveDown();
+            //tetrisArray.moveDown();
+
+            tetrisArray.moveBlocks(TetrisBlock.DOWN);
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.SW, 2, 2));
             tetrisPanel.setGraphics(tetrisArray);
+            System.out.println(tetrisArray.toString());
         });
         c.gridx = 1;
         c.gridy = 2;
@@ -87,25 +98,7 @@ public class Tetris extends JFrame {
         pack();
         setFocusable(true);
         setVisible(true);
-        addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                System.out.println(e.getKeyCode());
-                if (e.getKeyCode() == 78) {
-
-                }
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
+        requestFocus();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         game.repaint();
     }
@@ -126,4 +119,35 @@ public class Tetris extends JFrame {
 
     }
 
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.out.println(e.getKeyCode());
+        switch (e.getKeyCode()) {
+            case 37:
+                tetrisArray.moveBlocks(TetrisBlock.LEFT);
+                tetrisPanel.setGraphics(tetrisArray);
+                break;
+            case 38:
+                tetrisArray.moveBlocks(TetrisBlock.UP);
+                tetrisPanel.setGraphics(tetrisArray);
+                break;
+            case 39:
+                tetrisArray.moveBlocks(TetrisBlock.RIGHT);
+                tetrisPanel.setGraphics(tetrisArray);
+                break;
+            case 40:
+                tetrisArray.moveBlocks(TetrisBlock.DOWN);
+                tetrisPanel.setGraphics(tetrisArray);
+                break;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
 }
