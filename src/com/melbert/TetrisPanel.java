@@ -5,13 +5,16 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * Graphics class
+ */
 public class TetrisPanel extends JPanel {
-    ArrayList<JPanel> pixels;
-    int res = 12;
+    private ArrayList<JPanel> pixels;
+    private int res = 12;
     int[][] testgame = new int[res][res];
-    JPanel[][] pixelsArr = new JPanel[res][res];
+    private JPanel[][] pixelsArr = new JPanel[res][res];
 
-    public TetrisPanel() {
+    TetrisPanel() {
         this.setBackground(Color.WHITE);
         setLayout(new GridLayout(res, res));
         GridBagConstraints c = new GridBagConstraints();
@@ -43,7 +46,7 @@ public class TetrisPanel extends JPanel {
         //System.out.println(pixelsArr[0][1].toString());
     }
 
-    public int getRes() {
+    int getRes() {
         return res;
     }
 

@@ -3,14 +3,17 @@ package com.melbert;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Gamespace class, containing game logic data and methods
+ */
 public class TetrisArray {
 
-    int[][] data;
-    int res;
-    List<TetrisBlock> blocks = new ArrayList<TetrisBlock>();
+    private int[][] data;
+    private int res;
+    private List<TetrisBlock> blocks = new ArrayList<TetrisBlock>();
 
 
-    public TetrisArray(int newRes) {
+    TetrisArray(int newRes) {
         res = newRes;
         //new clear data array
         data = new int[res][res];
@@ -41,7 +44,7 @@ public class TetrisArray {
 
     }
 
-    void clear() {
+    private void clear() {
         for (int i = 0; i < this.data.length; i++) {
             for (int j = 0; j < this.data[0].length; j++) {
                 this.data[i][j] = 0;
@@ -61,44 +64,44 @@ public class TetrisArray {
     }
 
     void moveBlocks(int direction) {
-        for (TetrisBlock block : blocks) {
-
-            switch (direction) {
-                case TetrisBlock.DOWN:
-                    if (block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) { // check if shape is out of area
-                        System.out.println("shape out");
-                        break;
-                    }
-                    block.x = block.x + 1;
+        //for (TetrisBlock block : blocks) {}
+        TetrisBlock block = blocks.get(blocks.size() - 1);
+        switch (direction) {
+            case TetrisBlock.DOWN:
+                if (block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) { // check if shape is out of area
+                    System.out.println("shape out");
                     break;
-                case TetrisBlock.LEFT:
-                    if (block.shape.length + block.x > this.res || block.y - 1 < 0) { // check if shape is out of area
-                        System.out.println("shape out");
-                        break;
-                    }
-                    block.y = block.y - 1;
+                }
+                block.x = block.x + 1;
+                break;
+            case TetrisBlock.LEFT:
+                if (block.shape.length + block.x > this.res || block.y - 1 < 0) { // check if shape is out of area
+                    System.out.println("shape out");
                     break;
-                case TetrisBlock.RIGHT:
-                    if (block.shape.length + block.x > this.res || block.shape[0].length + block.y + 1 > this.res) { // check if shape is out of area
-                        System.out.println("shape out");
-                        break;
-                    }
-                    block.y = block.y + 1;
+                }
+                block.y = block.y - 1;
+                break;
+            case TetrisBlock.RIGHT:
+                if (block.shape.length + block.x > this.res || block.shape[0].length + block.y + 1 > this.res) { // check if shape is out of area
+                    System.out.println("shape out");
                     break;
-                case TetrisBlock.UP:
-                    block.x = block.x - 1;
-                    break;
-            }
-            System.out.println(block.x);
-            System.out.println(block.y);
+                }
+                block.y = block.y + 1;
+                break;
+            case TetrisBlock.UP:
+                block.x = block.x - 1;
+                break;
         }
+        System.out.println(block.x);
+        System.out.println(block.y);
+
     }
 
     void insertBlock(TetrisBlock block) {
         blocks.add(block);
     }
 
-    void updateBlocks() {
+    private void updateBlocks() {
         for (TetrisBlock block : this.blocks) {
             //TetrisBlock block = blocks.get(blocks.size() - 1);
             int sizex = block.shape.length;
@@ -118,7 +121,7 @@ public class TetrisArray {
     }
 
 
-    public int[][] getData() {
+    int[][] getData() {
         //update array
         this.clear();
         this.updateBlocks();

@@ -4,13 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Scanner;
 
+/**
+ * Main class with GUI code and I/O
+ */
 public class Tetris extends JFrame implements KeyListener {
-    static int n = 0;
-    static int[] nn = {0, 0};
-    TetrisArray tetrisArray;
-    TetrisPanel tetrisPanel;
+    private TetrisArray tetrisArray;
+    private TetrisPanel tetrisPanel;
 
     public Tetris() {
         JButton btn1;
@@ -27,7 +27,6 @@ public class Tetris extends JFrame implements KeyListener {
         btn1.setFocusable(false);
         btn1.addActionListener(e -> {
             System.out.println("dank memes");
-            tetrisPanel.pixels.get(n).setBackground(Color.red);
 
             tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 2, 2));
             tetrisPanel.setGraphics(tetrisArray);
@@ -47,7 +46,6 @@ public class Tetris extends JFrame implements KeyListener {
         btn2.setFocusable(false);
         btn2.addActionListener(e -> {
             System.out.println("dank memes");
-            tetrisPanel.pixels.get(n).setBackground(Color.red);
             try {
                 tetrisPanel.clearGraphics();
                 tetrisArray = new TetrisArray(tetrisPanel.getRes());
@@ -65,8 +63,7 @@ public class Tetris extends JFrame implements KeyListener {
         btn3.addActionListener(e -> {
             System.out.println("dank memes");
             //tetrisArray.moveDown();
-
-            tetrisArray.moveBlocks(TetrisBlock.DOWN);
+            //tetrisArray.moveBlocks(TetrisBlock.DOWN);
             tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.SW, 2, 2));
             tetrisPanel.setGraphics(tetrisArray);
             System.out.println(tetrisArray.toString());
@@ -105,18 +102,7 @@ public class Tetris extends JFrame implements KeyListener {
 
     public static void main(String[] args) {
         Tetris tetris = new Tetris();
-        Scanner sc = new Scanner(System.in);
         tetris.tetrisArray = new TetrisArray(tetris.tetrisPanel.getRes());
-        while (true) {
-            String[] jujj = sc.nextLine().split(" ");
-            try {
-                nn[0] = Integer.parseInt(jujj[0]);
-                nn[1] = Integer.parseInt(jujj[1]);
-
-            } catch (Exception a) {
-            }
-        }
-
     }
 
     @Override
