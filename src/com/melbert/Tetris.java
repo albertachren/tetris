@@ -23,18 +23,13 @@ public class Tetris extends JFrame implements KeyListener {
         c.weightx = 0.1;
         c.weighty = 0.1;
 
-        btn1 = new JButton("play");
+        btn1 = new JButton("PLAY");
         btn1.setFocusable(false);
         btn1.addActionListener(e -> {
-            System.out.println("dank memes");
-
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 2, 2));
+            //tetrisArray.findWhole();
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BIG_LINE, 0, 0));
             tetrisPanel.setGraphics(tetrisArray);
-
-            try {
-                //tetrisPanel.pixelsArr[nn[0]][nn[1]].setBackground(Color.red);
-            } catch (Exception b) {
-            }
+            System.out.println(tetrisArray.toString());
         });
         c.gridx = 1;
         c.gridy = 0;
@@ -42,10 +37,9 @@ public class Tetris extends JFrame implements KeyListener {
         c.fill = 0;
         add(btn1, c);
 
-        JButton btn2 = new JButton("clear");
+        JButton btn2 = new JButton("CLEAR");
         btn2.setFocusable(false);
         btn2.addActionListener(e -> {
-            System.out.println("dank memes");
             try {
                 tetrisPanel.clearGraphics();
                 tetrisArray = new TetrisArray(tetrisPanel.getRes());
@@ -58,21 +52,36 @@ public class Tetris extends JFrame implements KeyListener {
         c.fill = 0;
         add(btn2, c);
 
-        JButton btn3 = new JButton("jujjujj");
+        JButton btn3 = new JButton("F1");
         btn3.setFocusable(false);
         btn3.addActionListener(e -> {
-            System.out.println("dank memes");
             //tetrisArray.moveDown();
             //tetrisArray.moveBlocks(TetrisBlock.DOWN);
             tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.SW, 2, 2));
             tetrisPanel.setGraphics(tetrisArray);
+            System.out.println("Array: ");
             System.out.println(tetrisArray.toString());
         });
+
         c.gridx = 1;
         c.gridy = 2;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = 0;
         add(btn3, c);
+
+        JButton btn4 = new JButton("F2");
+        btn4.setFocusable(false);
+        btn4.addActionListener(e -> {
+            tetrisArray.setPixel(0, 0, 1);
+            System.out.println(tetrisArray.toString());
+            tetrisPanel.setGraphics(tetrisArray);
+        });
+
+        c.gridx = 1;
+        c.gridy = 3;
+        c.anchor = GridBagConstraints.CENTER;
+        c.fill = 0;
+        add(btn4, c);
 
         game = tetrisPanel;
         c.gridx = 0;
@@ -112,7 +121,6 @@ public class Tetris extends JFrame implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println(e.getKeyCode());
         switch (e.getKeyCode()) {
             case 37:
                 tetrisArray.moveBlocks(TetrisBlock.LEFT);

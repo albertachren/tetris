@@ -8,6 +8,7 @@ public class TetrisBlock {
     static final int[][] BLOCK = {{1, 1}, {1, 1}};
     public static final int[][] BM = {{0, 1, 0}, {1, 1, 1}, {1, 0, 1}};
     static final int[][] SW = {{1, 0, 1, 1, 1}, {1, 0, 1, 0, 0}, {1, 1, 1, 1, 1}, {0, 0, 1, 0, 1}, {1, 1, 1, 0, 1}};
+    static final int[][] BIG_LINE = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
     static final int RIGHT = 2;
     static final int LEFT = 1;
