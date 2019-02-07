@@ -29,7 +29,7 @@ public class Tetris extends JFrame implements KeyListener {
         btn1.setFocusable(false);
         btn1.addActionListener(e -> {
             //tetrisArray.findWhole();
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 0, 0));
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BIG_LINE, 0, 0));
             System.out.println(tetrisArray.toString());
         });
         c.gridx = 1;

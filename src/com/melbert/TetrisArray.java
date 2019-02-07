@@ -99,7 +99,7 @@ public class TetrisArray {
         boolean collision = false;
         switch (direction) {
             case TetrisBlock.DOWN:
-                for (int j = 0; j < block.shape.length; j++) {
+                for (int j = 0; j < block.shape[0].length; j++) {
                     if (blockData[block.x + block.shape.length][block.y + j] == 1) {
                         collision = true;
                     }
