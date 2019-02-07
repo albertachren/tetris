@@ -12,7 +12,7 @@ public class TetrisPanel extends JPanel {
     private ArrayList<JPanel> pixels;
     private int res = 12;
     int[][] testgame = new int[res][res];
-    private JPanel[][] pixelsArr = new JPanel[res][res];
+    JPanel[][] pixelsArr = new JPanel[res][res];
 
     TetrisPanel() {
         this.setBackground(Color.WHITE);

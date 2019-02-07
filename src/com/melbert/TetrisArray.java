@@ -7,8 +7,8 @@ import java.util.List;
  * Gamespace class, containing game logic blockData and methods
  */
 public class TetrisArray {
-
     private int[][] blockData;
+
     private int[][] pixelData;
 
     private int res;
@@ -31,22 +31,15 @@ public class TetrisArray {
 
     }
 
-
-    void moveDown() { //move all pixels and transparent pixels downwards
-        for (int i = 0; i < res - 1; i++) {
-            for (int j = 0; j < res; j++) {
-                if (blockData[i][j] == 1 && !(blockData[i + 1][j] == 1)) {
-                    blockData[i + 1][j] = 1;
-                    blockData[i][j] = 0;
-                } else if (blockData[i][j] == 2 && !(blockData[i + 1][j] == 20)) {
-                    blockData[i + 1][j] = 2;
-
-                    blockData[i][j] = 0;
-                }
-            }
-        }
-
-
+    void update() {
+        //update array
+        //this.deactivateBlocks();
+        //this.findWhole();
+        //this.clearBlocks();
+        this.clear();
+        this.updateBlocks();
+        System.out.println("Shapes: " + blocks.size());
+        //TODO: combine block and pixelData
     }
 
     private void clear() {
@@ -73,21 +66,21 @@ public class TetrisArray {
         TetrisBlock block = blocks.get(blocks.size() - 1);
         switch (direction) {
             case TetrisBlock.DOWN:
-                if (block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) { // check if shape is out of area
+                if ((block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) || collisionCheck(block, TetrisBlock.DOWN)) { // check if shape is out of area
                     System.out.println("shape out");
                     break;
                 }
                 block.x = block.x + 1;
                 break;
             case TetrisBlock.LEFT:
-                if (block.shape.length + block.x > this.res || block.y - 1 < 0) { // check if shape is out of area
+                if ((block.shape.length + block.x > this.res || block.y - 1 < 0) || collisionCheck(block, TetrisBlock.LEFT)) { // check if shape is out of area
                     System.out.println("shape out");
                     break;
                 }
                 block.y = block.y - 1;
                 break;
             case TetrisBlock.RIGHT:
-                if (block.shape.length + block.x > this.res || block.shape[0].length + block.y + 1 > this.res) { // check if shape is out of area
+                if ((block.shape.length + block.x > this.res || block.shape[0].length + block.y + 1 > this.res) || collisionCheck(block, TetrisBlock.RIGHT)) { // check if shape is out of area
                     System.out.println("shape out");
                     break;
                 }
@@ -102,39 +95,82 @@ public class TetrisArray {
 
     }
 
+    private boolean collisionCheck(TetrisBlock block, int direction) { //TODO: x & y parameters clarity & documentation
+        boolean collision = false;
+        switch (direction) {
+            case TetrisBlock.DOWN:
+                for (int j = 0; j < block.shape.length; j++) {
+                    if (blockData[block.x + block.shape.length][block.y + j] == 1) {
+                        collision = true;
+                    }
+                }
+                break;
+            case TetrisBlock.LEFT:
+                for (int j = 0; j < block.shape[0].length; j++) {
+                    try {
+                        if (blockData[block.x + j][block.y - 1] == 1) {
+                            collision = true;
+                        }
+                    } catch (Exception e) {
+                        collision = true;
+                    }
+                }
+                break;
+            case TetrisBlock.RIGHT:
+                for (int j = 0; j < block.shape[0].length; j++) {
+                    try {
+                        if (blockData[block.x + j][block.y + block.shape[0].length] == 1) {
+                            collision = true;
+                        }
+                    } catch (Exception e) {
+                        collision = true;
+                    }
+                }
+                break;
+        }
+
+
+        return collision;
+    }
+
     void insertBlock(TetrisBlock block) {
         blocks.add(block);
     }
 
     private void updateBlocks() {
-        for (TetrisBlock block : this.blocks) {
-            //TetrisBlock block = blocks.get(blocks.size() - 1);
+        for (TetrisBlock block : blocks) {
             int sizex = block.shape.length;
             int sizey = block.shape[0].length;
-
-
             for (int i = 0; i < sizex; i++) {
                 for (int j = 0; j < sizey; j++) {
                     try {
                         blockData[block.x + i][block.y + j] = block.shape[i][j];
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                 }
             }
         }
-
     }
 
+    private void clearBlocks() {
+        for (TetrisBlock block : blocks) {
+            int sizex = block.shape.length;
+            int sizey = block.shape[0].length;
+            for (int i = 0; i < sizex; i++) {
+                for (int j = 0; j < sizey; j++) {
+                    try {
+                        blockData[block.x + i][block.y + j] = 0;
+                    } catch (Exception e) {
+                        System.out.println("error clearBlock");
+                    }
+                }
+            }
+        }
+        System.out.println(toString());
+    }
 
     int[][] getData() {
-        //update array
-        this.deactivateBlocks();
-        this.findWhole();
-        for (TetrisBlock block : blocks) {
-            this.clearBlock(block);
-        }
-        this.updateBlocks();
-        //TODO: combine block and pixelData
+        //TODO: sum arrays?
         return blockData;
     }
 
@@ -147,21 +183,6 @@ public class TetrisArray {
                     }
                 }
                 blocks.remove(block);
-            }
-        }
-    }
-
-    private void clearBlock(TetrisBlock block) {
-        int sizex = block.shape.length;
-        int sizey = block.shape[0].length;
-
-        for (int i = 0; i < sizex; i++) {
-            for (int j = 0; j < sizey; j++) {
-                try {
-                    blockData[block.x + i][block.y + j] = 0;
-                } catch (Exception e) {
-                    System.out.println("error clearBlock");
-                }
             }
         }
     }
@@ -194,5 +215,22 @@ public class TetrisArray {
     public void setPixel(int x, int y, int state) {
         pixelData[x][y] = state;
         System.out.println(String.format("[%d, %d]: %d", x, y, state));
+    }
+
+    void moveDown() { //move all pixels and transparent pixels downwards
+        for (int i = 0; i < res - 1; i++) {
+            for (int j = 0; j < res; j++) {
+                if (blockData[i][j] == 1 && !(blockData[i + 1][j] == 1)) {
+                    blockData[i + 1][j] = 1;
+                    blockData[i][j] = 0;
+                } else if (blockData[i][j] == 2 && !(blockData[i + 1][j] == 20)) {
+                    blockData[i + 1][j] = 2;
+
+                    blockData[i][j] = 0;
+                }
+            }
+        }
+
+
     }
 }

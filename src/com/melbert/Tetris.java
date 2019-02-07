@@ -10,7 +10,9 @@ import java.awt.event.KeyListener;
  */
 public class Tetris extends JFrame implements KeyListener {
     private TetrisArray tetrisArray;
-    private TetrisPanel tetrisPanel;
+    static Tetris tetris;
+    private final int FRAMERATE = 15;
+    TetrisPanel tetrisPanel;
 
     public Tetris() {
         JButton btn1;
@@ -27,8 +29,7 @@ public class Tetris extends JFrame implements KeyListener {
         btn1.setFocusable(false);
         btn1.addActionListener(e -> {
             //tetrisArray.findWhole();
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BIG_LINE, 0, 0));
-            tetrisPanel.setGraphics(tetrisArray);
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 0, 0));
             System.out.println(tetrisArray.toString());
         });
         c.gridx = 1;
@@ -58,7 +59,6 @@ public class Tetris extends JFrame implements KeyListener {
             //tetrisArray.moveDown();
             //tetrisArray.moveBlocks(TetrisBlock.DOWN);
             tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.SW, 2, 2));
-            tetrisPanel.setGraphics(tetrisArray);
             System.out.println("Array: ");
             System.out.println(tetrisArray.toString());
         });
@@ -74,7 +74,6 @@ public class Tetris extends JFrame implements KeyListener {
         btn4.addActionListener(e -> {
             tetrisArray.setPixel(0, 0, 1);
             System.out.println(tetrisArray.toString());
-            tetrisPanel.setGraphics(tetrisArray);
         });
 
         c.gridx = 1;
@@ -106,12 +105,30 @@ public class Tetris extends JFrame implements KeyListener {
         setVisible(true);
         requestFocus();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        game.repaint();
+
+        Timer mainTimer = new Timer(1000 / FRAMERATE, e -> {
+            tetrisArray.update();
+            tetrisPanel.setGraphics(tetrisArray); //master setGraphics
+        });
+        mainTimer.start();
+        Timer secondaryTimer = new Timer(300, e -> {
+            try {
+                tetrisArray.moveBlocks(TetrisBlock.DOWN);
+            } catch (Exception ignored) {
+            }
+        });
+        secondaryTimer.start();
+
     }
 
     public static void main(String[] args) {
-        Tetris tetris = new Tetris();
+        tetris = new Tetris();
         tetris.tetrisArray = new TetrisArray(tetris.tetrisPanel.getRes());
+        tetris.startGame();
+    }
+
+    private void startGame() {
+        tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 3, 2));
     }
 
     @Override
@@ -124,19 +141,15 @@ public class Tetris extends JFrame implements KeyListener {
         switch (e.getKeyCode()) {
             case 37:
                 tetrisArray.moveBlocks(TetrisBlock.LEFT);
-                tetrisPanel.setGraphics(tetrisArray);
                 break;
             case 38:
                 tetrisArray.moveBlocks(TetrisBlock.UP);
-                tetrisPanel.setGraphics(tetrisArray);
                 break;
             case 39:
                 tetrisArray.moveBlocks(TetrisBlock.RIGHT);
-                tetrisPanel.setGraphics(tetrisArray);
                 break;
             case 40:
                 tetrisArray.moveBlocks(TetrisBlock.DOWN);
-                tetrisPanel.setGraphics(tetrisArray);
                 break;
         }
     }
