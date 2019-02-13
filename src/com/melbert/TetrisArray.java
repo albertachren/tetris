@@ -225,7 +225,6 @@ public class TetrisArray {
                     blockData[i][j] = 0;
                 } else if (blockData[i][j] == 2 && !(blockData[i + 1][j] == 20)) {
                     blockData[i + 1][j] = 2;
-
                     blockData[i][j] = 0;
                 }
             }
