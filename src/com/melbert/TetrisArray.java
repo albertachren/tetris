@@ -66,6 +66,9 @@ public class TetrisArray {
         TetrisBlock block = blocks.get(blocks.size() - 1);
         switch (direction) {
             case TetrisBlock.DOWN:
+                for (int i = 0; i < block.shape[0].length; i++) {
+                    //TODO: pixyl by pixel hit detection
+                }
                 if ((block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) || collisionCheck(block, TetrisBlock.DOWN)) { // check if shape is out of area
                     return false;
 

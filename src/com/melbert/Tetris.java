@@ -29,7 +29,7 @@ public class Tetris extends JFrame implements KeyListener {
         btn1.setFocusable(false);
         btn1.addActionListener(e -> {
             //tetrisArray.findWhole();
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 0, 4));
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[TetrisBlock.BLOCK], 0, 4));
             System.out.println(tetrisArray.toString());
         });
         c.gridx = 1;
@@ -58,7 +58,7 @@ public class Tetris extends JFrame implements KeyListener {
         btn3.addActionListener(e -> {
             //tetrisArray.moveDown();
             //tetrisArray.moveBlocks(TetrisBlock.DOWN);
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.SW, 2, 2));
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[TetrisBlock.L], 2, 2));
             System.out.println("Array: ");
             System.out.println(tetrisArray.toString());
         });
@@ -118,12 +118,26 @@ public class Tetris extends JFrame implements KeyListener {
             } catch (Exception ignored) {
             }
             if (!result) {
-                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 0, 4));
+                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 0, 4));
             }
             tetrisArray.findWhole();
         });
         secondaryTimer.start();
 
+        SwingWorker worker = new SwingWorker<Void, Void>() {
+            @Override
+            public Void doInBackground() {
+
+                return null;
+            }
+
+            @Override
+            public void done() {
+            }
+
+            protected void process() {
+            }
+        };
     }
 
     public static void main(String[] args) {
@@ -133,7 +147,7 @@ public class Tetris extends JFrame implements KeyListener {
     }
 
     private void startGame() {
-        tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 3, 2));
+        tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 3, 2));
     }
 
     @Override
