@@ -64,6 +64,19 @@ public class TetrisPanel extends JPanel {
         }
     }
 
+    void setGraphics(int[][] data) {
+        for (int i = 0; i < res; i++) { //loop trough graphics array
+            for (int j = 0; j < res; j++) {
+                pixelsArr[i][j].setBackground(new Color(255, 255, 255));
+                if (data[i][j] == 1) {
+                    pixelsArr[i][j].setBackground(Color.red); //if pixeldata is lit, light JPanel pixel
+                } else if (data[i][j] == 2) {
+                    pixelsArr[i][j].setBackground(Color.gray); //if pixeldata is lit, light JPanel pixel
+                }
+            }
+        }
+    }
+
     void clearGraphics() {
         for (int i = 0; i < res; i++) { //loop trough graphics array
             for (int j = 0; j < res; j++) {
