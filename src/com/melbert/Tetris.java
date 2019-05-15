@@ -20,7 +20,7 @@ public class Tetris extends JFrame implements KeyListener {
         this.addKeyListener(this);
         tetrisPanel = new TetrisPanel();
         setLayout(new GridBagLayout());
-        setMinimumSize(new Dimension(500, 300));
+        setMinimumSize(new Dimension(200, 200));
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = 0.1;
         c.weighty = 0.1;
@@ -29,7 +29,7 @@ public class Tetris extends JFrame implements KeyListener {
         btn1.setFocusable(false);
         btn1.addActionListener(e -> {
             //tetrisArray.findWhole();
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BIG_LINE, 0, 0));
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 0, 4));
             System.out.println(tetrisArray.toString());
         });
         c.gridx = 1;
@@ -112,10 +112,15 @@ public class Tetris extends JFrame implements KeyListener {
         });
         mainTimer.start();
         Timer secondaryTimer = new Timer(300, e -> {
+            boolean result = true;
             try {
-                tetrisArray.moveBlocks(TetrisBlock.DOWN);
+                result = tetrisArray.moveBlocks(TetrisBlock.DOWN);
             } catch (Exception ignored) {
             }
+            if (!result) {
+                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.BLOCK, 0, 4));
+            }
+            tetrisArray.findWhole();
         });
         secondaryTimer.start();
 
@@ -143,7 +148,7 @@ public class Tetris extends JFrame implements KeyListener {
                 tetrisArray.moveBlocks(TetrisBlock.LEFT);
                 break;
             case 38:
-                tetrisArray.moveBlocks(TetrisBlock.UP);
+                //tetrisArray.moveBlocks(TetrisBlock.UP);
                 break;
             case 39:
                 tetrisArray.moveBlocks(TetrisBlock.RIGHT);

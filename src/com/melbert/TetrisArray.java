@@ -34,10 +34,10 @@ public class TetrisArray {
     void update() {
         //update array
         //this.deactivateBlocks();
-        //this.findWhole();
         //this.clearBlocks();
         this.clear();
         this.updateBlocks();
+        //this.findWhole();
         System.out.println("Shapes: " + blocks.size());
         //TODO: combine block and pixelData
     }
@@ -61,28 +61,28 @@ public class TetrisArray {
         return string.toString();
     }
 
-    void moveBlocks(int direction) {
+    boolean moveBlocks(int direction) {
         //for (TetrisBlock block : blocks) {}
         TetrisBlock block = blocks.get(blocks.size() - 1);
         switch (direction) {
             case TetrisBlock.DOWN:
                 if ((block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) || collisionCheck(block, TetrisBlock.DOWN)) { // check if shape is out of area
-                    System.out.println("shape out");
-                    break;
+                    return false;
+
                 }
                 block.x = block.x + 1;
                 break;
             case TetrisBlock.LEFT:
                 if ((block.shape.length + block.x > this.res || block.y - 1 < 0) || collisionCheck(block, TetrisBlock.LEFT)) { // check if shape is out of area
                     System.out.println("shape out");
-                    break;
+                    return false;
                 }
                 block.y = block.y - 1;
                 break;
             case TetrisBlock.RIGHT:
                 if ((block.shape.length + block.x > this.res || block.shape[0].length + block.y + 1 > this.res) || collisionCheck(block, TetrisBlock.RIGHT)) { // check if shape is out of area
                     System.out.println("shape out");
-                    break;
+                    return false;
                 }
                 block.y = block.y + 1;
                 break;
@@ -92,7 +92,7 @@ public class TetrisArray {
         }
         System.out.println("block x coordinate: " + String.valueOf(block.x));
         System.out.println("block y coordinate: " + String.valueOf(block.y));
-
+        return true;
     }
 
     private boolean collisionCheck(TetrisBlock block, int direction) { //TODO: x & y parameters clarity & documentation
@@ -138,7 +138,10 @@ public class TetrisArray {
     }
 
     private void updateBlocks() {
-        for (TetrisBlock block : blocks) {
+        for (int i1 = 0; i1 < blocks.size(); i1++) {
+            TetrisBlock block = blocks.get(i1);
+
+
             int sizex = block.shape.length;
             int sizey = block.shape[0].length;
             for (int i = 0; i < sizex; i++) {
@@ -162,6 +165,7 @@ public class TetrisArray {
                         blockData[block.x + i][block.y + j] = 0;
                     } catch (Exception e) {
                         System.out.println("error clearBlock");
+
                     }
                 }
             }
@@ -196,8 +200,19 @@ public class TetrisArray {
                 }
             }
             if (lineFull) {
-                clearLine(i);
-                System.out.println("lines found");
+                //clearLine(i);
+                moveBottomDown();
+            }
+        }
+    }
+
+    private void moveBottomDown() {
+        for (TetrisBlock block : blocks) {
+            if (block.x + block.shape[0].length >= res) {
+                //if ((block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) || collisionCheck(block, TetrisBlock.DOWN)) { // check if shape is out of area
+                //    return;
+                //}
+                block.x = block.x + 1;
             }
         }
     }
@@ -205,8 +220,8 @@ public class TetrisArray {
     private void clearLine(int line) { //clear a single horizontal line
         //System.out.println("line: ");
         //System.out.println(line);
-        for (int i = 0; i < this.pixelData[line].length; i++) {
-            this.pixelData[line][i] = 0;
+        for (int i = 0; i < this.blockData[line].length; i++) {
+            this.blockData[line][i] = 0;
             //System.out.println("index: " + String.valueOf(i));
         }
 
@@ -225,7 +240,6 @@ public class TetrisArray {
                     blockData[i][j] = 0;
                 } else if (blockData[i][j] == 2 && !(blockData[i + 1][j] == 20)) {
                     blockData[i + 1][j] = 2;
-
                     blockData[i][j] = 0;
                 }
             }
