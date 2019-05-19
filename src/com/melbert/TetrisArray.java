@@ -38,7 +38,7 @@ public class TetrisArray {
         this.clear();
         this.updateBlocks();
         //this.findWhole();
-        System.out.println("Shapes: " + blocks.size());
+        //System.out.println("Shapes: " + blocks.size());
         //TODO: combine block and pixelData
     }
 
@@ -77,14 +77,14 @@ public class TetrisArray {
                 break;
             case TetrisBlock.LEFT:
                 if ((block.shape.length + block.x > this.res || block.y - 1 < 0) || collisionCheck(block, TetrisBlock.LEFT)) { // check if shape is out of area
-                    System.out.println("shape out");
+                    //System.out.println("shape out");
                     return false;
                 }
                 block.y = block.y - 1;
                 break;
             case TetrisBlock.RIGHT:
                 if ((block.shape.length + block.x > this.res || block.shape[0].length + block.y + 1 > this.res) || collisionCheck(block, TetrisBlock.RIGHT)) { // check if shape is out of area
-                    System.out.println("shape out");
+                    //System.out.println("shape out");
                     return false;
                 }
                 block.y = block.y + 1;
@@ -93,8 +93,8 @@ public class TetrisArray {
                 block.x = block.x - 1;
                 break;
         }
-        System.out.println("block x coordinate: " + String.valueOf(block.x));
-        System.out.println("block y coordinate: " + String.valueOf(block.y));
+        //System.out.println("block x coordinate: " + String.valueOf(block.x));
+        //System.out.println("block y coordinate: " + String.valueOf(block.y));
         return true;
     }
 
@@ -232,7 +232,7 @@ public class TetrisArray {
 
     public void setPixel(int x, int y, int state) {
         pixelData[x][y] = state;
-        System.out.println(String.format("[%d, %d]: %d", x, y, state));
+        //System.out.println(String.format("[%d, %d]: %d", x, y, state));
     }
 
     void moveDown() { //move all pixels and transparent pixels downwards

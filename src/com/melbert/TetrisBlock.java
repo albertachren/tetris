@@ -10,15 +10,16 @@ public class TetrisBlock {
     public static final int[][][] shapes = {
             {{1, 1}, {1, 1}},
             {{0, 1, 0}, {1, 1, 1}, {1, 0, 1}},
-            {{1}, {1}, {1, 1}},
-            {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}}
+            {{1}, {1}, {1, 1}}
+
     };
     public static final int[][] BM_SHAPE = {{0, 1, 0}, {1, 1, 1}, {1, 0, 1}};
     public static final int BLOCK = 0;
     public static final int BM = 1;
-    //public static final int SW= 2;
+    //public static final int SW = 2;
     public static final int L = 2;
-    public static final int BIG_LINE = 3;
+    //public static final int BIG_LINE = 3;
+
     static final int[][] BLOCK_SHAPE = {{1, 1}, {1, 1}};
     static final int[][] SW_SHAPE = {{1, 0, 1, 1, 1}, {1, 0, 1, 0, 0}, {1, 1, 1, 1, 1}, {0, 0, 1, 0, 1}, {1, 1, 1, 0, 1}};
     static final int[][] BIG_LINE_SHAPE = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
