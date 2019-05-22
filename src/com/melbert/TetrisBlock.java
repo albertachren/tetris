@@ -1,5 +1,6 @@
 package com.melbert;
 
+import java.awt.*;
 import java.util.Random;
 
 /**
@@ -35,6 +36,7 @@ public class TetrisBlock {
     int[][] shape;
     int x;
     int y;
+    Color color = Color.red;
 
     TetrisBlock(int[][] shape, int x, int y) {
         this.shape = shape;

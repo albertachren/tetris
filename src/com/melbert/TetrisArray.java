@@ -66,12 +66,8 @@ public class TetrisArray {
         TetrisBlock block = blocks.get(blocks.size() - 1);
         switch (direction) {
             case TetrisBlock.DOWN:
-                for (int i = 0; i < block.shape[0].length; i++) {
-                    //TODO: pixyl by pixel hit detection
-                }
                 if ((block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) || collisionCheck(block, TetrisBlock.DOWN)) { // check if shape is out of area
                     return false;
-
                 }
                 block.x = block.x + 1;
                 break;
@@ -102,11 +98,25 @@ public class TetrisArray {
         boolean collision = false;
         switch (direction) {
             case TetrisBlock.DOWN:
+                int i = block.shape.length - 1;
+                for (int j = 0; j < block.shape[0].length; j++) {
+                    //setPixel(block.x+block.shape.length, j+block.y, 2);
+
+                    if ((blockData[block.x + block.shape.length][j + block.y] == 1 && block.shape[i][j] == 1)) {
+                        collision = true;
+                    }
+                        /*
+                        else if(block.shape[i][j] == blockData[i+block.x][j+block.y]){
+                            collision =
+                        }*/
+                }
+                /*
                 for (int j = 0; j < block.shape[0].length; j++) {
                     if (blockData[block.x + block.shape.length][block.y + j] == 1) {
                         collision = true;
                     }
-                }
+                }*/
+
                 break;
             case TetrisBlock.LEFT:
                 for (int j = 0; j < block.shape[0].length; j++) {
@@ -150,7 +160,7 @@ public class TetrisArray {
             for (int i = 0; i < sizex; i++) {
                 for (int j = 0; j < sizey; j++) {
                     try {
-                        blockData[block.x + i][block.y + j] = block.shape[i][j];
+                        if (block.shape[i][j] == 1) blockData[block.x + i][block.y + j] = block.shape[i][j];
                     } catch (Exception ignored) {
                     }
                 }
@@ -231,7 +241,7 @@ public class TetrisArray {
     }
 
     public void setPixel(int x, int y, int state) {
-        pixelData[x][y] = state;
+        blockData[x][y] = state;
         //System.out.println(String.format("[%d, %d]: %d", x, y, state));
     }
 

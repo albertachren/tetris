@@ -16,7 +16,7 @@ import java.util.TimerTask;
  * Main class with GUI code and I/O
  */
 public class Tetris extends JFrame implements KeyListener {
-    private static final String ADRESS = "10.33.8.186";
+    private static final String ADRESS = "127.0.0.1";
     private TetrisArray tetrisArray;
     static Tetris tetris;
     private final int FRAMERATE = 15;

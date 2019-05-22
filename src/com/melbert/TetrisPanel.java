@@ -58,7 +58,7 @@ public class TetrisPanel extends JPanel {
                 if (data[i][j] == 1) {
                     pixelsArr[i][j].setBackground(Color.red); //if pixeldata is lit, light JPanel pixel
                 } else if (data[i][j] == 2) {
-                    pixelsArr[i][j].setBackground(Color.gray); //if pixeldata is lit, light JPanel pixel
+                    pixelsArr[i][j].setBackground(Color.blue); //if pixeldata is lit, light JPanel pixel
                 }
             }
         }
