@@ -4,24 +4,26 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.TimerTask;
 
 /**
  * Main class with GUI code and I/O
  */
 public class Tetris extends JFrame implements KeyListener {
-    private static final String ADRESS = "127.0.0.1";
+    private static final String ADRESS = "192.168.1.162";
     private TetrisArray tetrisArray;
     static Tetris tetris;
-    private final int FRAMERATE = 15;
-    TetrisPanel tetrisPanel;
-
+    private int score = 0;
+    private boolean connected = false;
+    private boolean start = false;
+    private Timer gTimer;
+    private SwingWorker worker;
+    private SwingWorker eWorker;
     public Tetris() {
         JButton btn1;
         JPanel game;
@@ -108,6 +110,7 @@ public class Tetris extends JFrame implements KeyListener {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
+        //TODO: Save game button and function
         pack();
         setFocusable(true);
         setVisible(true);
@@ -133,14 +136,17 @@ public class Tetris extends JFrame implements KeyListener {
         });
         secondaryTimer.start();
         */
-        javax.swing.Timer gTimer = new javax.swing.Timer(1000 / FRAMERATE, e -> {
+        gTimer = new javax.swing.Timer(1000 / FRAMERATE, e -> {
             tetrisPanel.setGraphics(tetrisArray); //master setGraphics
         });
-        gTimer.start();
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+
+        worker = new SwingWorker<Void, Void>() {
+            //TODO: Threads working
             @Override
             public Void doInBackground() {
-                tetrisArray.update();
+                while (!getStart()) {
+                } //TODO: Better waiting
+                System.out.println("Array worker starting.");
                 java.util.Timer mainTimer = new java.util.Timer();
                 mainTimer.scheduleAtFixedRate(new TimerTask() {
                     @Override
@@ -159,6 +165,8 @@ public class Tetris extends JFrame implements KeyListener {
                         } catch (Exception ignored) {
                         }
                         if (!result) {
+
+
                             tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 0, 4));
                         }
                         tetrisArray.findWhole();
@@ -175,49 +183,58 @@ public class Tetris extends JFrame implements KeyListener {
                 return null;
             }
         };
-        worker.execute();
 
-        SwingWorker eWorker = new SwingWorker<Void, Void>() {
+
+        eWorker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
-                DataInputStream in = null;
-                DataOutputStream out = null;
+                BufferedReader in = null;
+                PrintWriter out = null;
                 Socket socket = null;
-                ServerSocket serversocket = null;
-                Socket serverIOSocket = null;
-                try {
-                    serversocket = new ServerSocket(5000);
 
-                    socket = new Socket(ADRESS, 5000);
-
-                    serverIOSocket = serversocket.accept();
-
-                    out = new DataOutputStream(socket.getOutputStream());
-
-                    in = new DataInputStream(socket.getInputStream());
-
-                } catch (UnknownHostException u) {
-                    System.out.println(u);
-                } catch (IOException i) {
-                    System.out.println(i);
-                }
-                boolean online = true;
-
-                while (online) {
+                System.out.println("Trying connection.");
+                boolean connecting = true;
+                while (connecting) {
                     try {
-                        System.out.println("jujj");
-                        out.writeChar(1);
-                        System.out.println("server");
-                        System.out.println(serverIOSocket.getInputStream().read());
-                        System.out.println("client");
-                        System.out.println(in.read());
-                        socket.close();
-                    } catch (Exception e) {
-                        {
-                            System.out.println(e);
+                        socket = new Socket(ADRESS, 5000);
+                    } catch (IOException e) {
+                        System.out.println("Retrying Connection.");
+                        Thread.sleep(300);
+                        continue;
+                    }
+                    connecting = false;
+                }
+                try {
+                    out = new PrintWriter(socket.getOutputStream(), true);
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                } catch (Exception e) {
+                    System.out.println("Streams failed.");
+                    System.exit(1);
+                }
+
+                System.out.println("Connection successful.");
+                connected = true;
+
+                boolean online = true;
+                while (online) {
+                    System.out.println("-Looped.");
+
+                    if (socket.getInputStream().available() != -1) {
+                        String input = in.readLine();
+
+
+                        if (input.toLowerCase().equals("Test".toLowerCase())) {
+                            out.println("Client test response.");
+                        }
+                        if (input.toLowerCase().contains("start".toLowerCase())) {
+                            setStart(true);
+                            System.out.println("Game starting.");
                         }
                     }
-                    online = false;
+
+                    out.println("s" + String.valueOf(score));
+                    score++;
+                    Thread.sleep(1000);
                 }
 
                 return null;
@@ -225,7 +242,22 @@ public class Tetris extends JFrame implements KeyListener {
 
 
         };
-        eWorker.execute();
+
+    }
+
+    public synchronized boolean getStart() {
+        return start;
+    }
+
+    public synchronized void setStart(boolean start) {
+        this.start = start;
+    }
+
+    private final int FRAMERATE = 15;
+    TetrisPanel tetrisPanel;
+
+    synchronized public TetrisArray getTetrisArray() {
+        return tetrisArray;
     }
 
     public static void main(String[] args) {
@@ -238,6 +270,9 @@ public class Tetris extends JFrame implements KeyListener {
     }
 
     private void startGame() {
+        eWorker.execute();
+        gTimer.start();
+        worker.execute();
         tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 3, 2));
     }
 

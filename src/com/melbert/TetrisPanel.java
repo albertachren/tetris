@@ -42,7 +42,6 @@ public class TetrisPanel extends JPanel {
         for (JPanel panel : pixels) {
             add(panel);
         }
-        pixels.get(1).setBackground(Color.BLUE);
         //System.out.println(pixelsArr[0][1].toString());
     }
 

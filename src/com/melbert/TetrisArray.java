@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Gamespace class, containing game logic blockData and methods
+ * Gamespace class
  */
 public class TetrisArray {
     private int[][] blockData;
@@ -13,32 +13,31 @@ public class TetrisArray {
 
     private int res;
     private List<TetrisBlock> blocks = new ArrayList<TetrisBlock>();
-
+    private int score = 0;
 
     TetrisArray(int newRes) {
         res = newRes;
-        //new clear blockData array
+
+        //Create a new clear blockData array
         blockData = new int[res][res];
         pixelData = new int[res][res];
         for (int i = 0; i < res; i++) {
             for (int j = 0; j < res; j++) {
                 blockData[i][j] = 0;
                 pixelData[i][j] = 0;
-                //Random random = new Random(); //temporary random fill
-                //blockData[i][j] = random.nextInt(2);
             }
         }
 
     }
 
+    synchronized public int getScore() {
+        return score;
+    }
+
     void update() {
-        //update array
-        //this.deactivateBlocks();
-        //this.clearBlocks();
+        //Update the array
         this.clear();
         this.updateBlocks();
-        //this.findWhole();
-        //System.out.println("Shapes: " + blocks.size());
         //TODO: combine block and pixelData
     }
 
@@ -61,7 +60,7 @@ public class TetrisArray {
         return string.toString();
     }
 
-    boolean moveBlocks(int direction) {
+    boolean moveBlocks(int direction) { //TODO: Doc
         //for (TetrisBlock block : blocks) {}
         TetrisBlock block = blocks.get(blocks.size() - 1);
         switch (direction) {
@@ -150,11 +149,9 @@ public class TetrisArray {
         blocks.add(block);
     }
 
-    private void updateBlocks() {
+    private void updateBlocks() { //TODO: Doc
         for (int i1 = 0; i1 < blocks.size(); i1++) {
             TetrisBlock block = blocks.get(i1);
-
-
             int sizex = block.shape.length;
             int sizey = block.shape[0].length;
             for (int i = 0; i < sizex; i++) {
@@ -167,6 +164,12 @@ public class TetrisArray {
             }
         }
     }
+
+    synchronized public int getRes() {
+        return res;
+    }
+
+    //TODO: ROTATE
 
     private void clearBlocks() {
         for (TetrisBlock block : blocks) {
@@ -187,7 +190,7 @@ public class TetrisArray {
     }
 
     int[][] getData() {
-        //TODO: sum arrays?
+        //might have to sum arrays
         return blockData;
     }
 
