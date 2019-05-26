@@ -218,6 +218,7 @@ public class TetrisArray {
             if (lineFull) {
                 //clearLine(i);
                 moveBottomDown();
+                score++;
             }
         }
     }

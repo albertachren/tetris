@@ -18,12 +18,21 @@ public class Tetris extends JFrame implements KeyListener {
     private static final String ADRESS = "192.168.1.162";
     private TetrisArray tetrisArray;
     static Tetris tetris;
-    private int score = 0;
-    private boolean connected = false;
+    private final int FRAMERATE = 15;
     private boolean start = false;
     private Timer gTimer;
     private SwingWorker worker;
     private SwingWorker eWorker;
+    private final int LOGIC = 2;
+    int currentShape;
+    TetrisPanel tetrisPanel;
+    //private int score = 0;
+    private boolean connected = false;
+    private int gametick = 0;
+    private int localtick = 0;
+    private int oppscore = 0;
+    private int prevGameTick = 0;
+
     public Tetris() {
         JButton btn1;
         JPanel game;
@@ -43,7 +52,7 @@ public class Tetris extends JFrame implements KeyListener {
             System.out.println(tetrisArray.toString());
         });
         c.gridx = 1;
-        c.gridy = 0;
+        c.gridy = 2;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = 0;
         add(btn1, c);
@@ -58,11 +67,12 @@ public class Tetris extends JFrame implements KeyListener {
             }
         });
         c.gridx = 1;
-        c.gridy = 1;
+        c.gridy = 3;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = 0;
         add(btn2, c);
 
+        /*
         JButton btn3 = new JButton("F1");
         btn3.setFocusable(false);
         btn3.addActionListener(e -> {
@@ -71,26 +81,31 @@ public class Tetris extends JFrame implements KeyListener {
             tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[TetrisBlock.L], 2, 2));
             System.out.println("Array: ");
             System.out.println(tetrisArray.toString());
-        });
+        });*/
+
+        JTextArea txtSelf = new JTextArea();
 
         c.gridx = 1;
-        c.gridy = 2;
+        c.gridy = 0;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = 0;
-        add(btn3, c);
+        add(txtSelf, c);
 
+        /*
         JButton btn4 = new JButton("F2");
         btn4.setFocusable(false);
         btn4.addActionListener(e -> {
             tetrisArray.setPixel(0, 0, 1);
             System.out.println(tetrisArray.toString());
-        });
+        });*/
+
+        JTextArea txtOpp = new JTextArea("-");
 
         c.gridx = 1;
-        c.gridy = 3;
+        c.gridy = 1;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = 0;
-        add(btn4, c);
+        add(txtOpp, c);
 
         game = tetrisPanel;
         c.gridx = 0;
@@ -113,6 +128,7 @@ public class Tetris extends JFrame implements KeyListener {
         //TODO: Save game button and function
         pack();
         setFocusable(true);
+        setAlwaysOnTop(true);
         setVisible(true);
         requestFocus();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -138,6 +154,8 @@ public class Tetris extends JFrame implements KeyListener {
         */
         gTimer = new javax.swing.Timer(1000 / FRAMERATE, e -> {
             tetrisPanel.setGraphics(tetrisArray); //master setGraphics
+            txtSelf.setText(String.valueOf(tetrisArray.getScore()));
+            txtOpp.setText(String.valueOf(oppscore));
         });
 
         worker = new SwingWorker<Void, Void>() {
@@ -165,13 +183,24 @@ public class Tetris extends JFrame implements KeyListener {
                         } catch (Exception ignored) {
                         }
                         if (!result) {
+                            //currentBlock = false;
+                            0 System.out.println("cannot move blocks");
+                            /*if(prevGameTick != gametick){
+                                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, 4));
+                                prevGameTick++;
 
+                            }*/
+                            if (getLocaltick() < getGametick()) {
+                                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, 4));
+                                System.out.println("L, G: " + String.valueOf(getLocaltick()) + ", " + String.valueOf(getGametick()));
+                                setLocaltick(getLocaltick() + 1);
+                                System.out.println("LT incremented to: " + String.valueOf(getLocaltick()));
+                            }
 
-                            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 0, 4));
                         }
                         tetrisArray.findWhole();
                     }
-                }, 0, 300);
+                }, 0, 1000 / LOGIC);
                 return null;
             }
 
@@ -215,26 +244,53 @@ public class Tetris extends JFrame implements KeyListener {
                 System.out.println("Connection successful.");
                 connected = true;
 
+                //Setup
+                out.println("gs");
+
                 boolean online = true;
                 while (online) {
-                    System.out.println("-Looped.");
+                    System.out.println(getGametick());
+                    //System.out.println("LT, GT:" + String.valueOf(localtick) + ", " + String.valueOf(gametick));
 
-                    if (socket.getInputStream().available() != -1) {
+                    //System.out.println("-Looped.");
+                    /*if(localtick != gametick){
+                        out.println("gs");
+                    }*/
+                    //out.println("gs");
+
+                    /*
+                    System.out.println("GT: " + String.valueOf(gametick));
+                    System.out.println("LT: " + String.valueOf(localtick));*/
+                    while (in.ready()) {
                         String input = in.readLine();
-
-
+                        //System.out.println(input);
                         if (input.toLowerCase().equals("Test".toLowerCase())) {
                             out.println("Client test response.");
-                        }
-                        if (input.toLowerCase().contains("start".toLowerCase())) {
+
+                        } else if (input.toLowerCase().contains("start".toLowerCase())) {
+                            mpStart();
                             setStart(true);
                             System.out.println("Game starting.");
+
+                        } else if (input.substring(0, 1).equals("t")) {
+                            setGametick(Integer.parseInt(input.substring(1)));
+                            //System.out.println(gametick);
+
+                        } else if (input.substring(0, 1).equals("sh")) {
+                            currentShape = Integer.parseInt(input.substring(1));
+
+                        } else if (input.substring(0, 1).equals("o")) {
+                            oppscore = Integer.parseInt(input.substring(1));
                         }
+
                     }
 
-                    out.println("s" + String.valueOf(score));
-                    score++;
-                    Thread.sleep(1000);
+
+                    out.println("s" + String.valueOf(tetrisArray.getScore()));
+                    //System.out.println(String.valueOf(getLocaltick()));
+                    out.println("t" + String.valueOf(getLocaltick()));
+                    //out.println("gt");
+                    Thread.sleep(1);
                 }
 
                 return null;
@@ -245,6 +301,28 @@ public class Tetris extends JFrame implements KeyListener {
 
     }
 
+    public synchronized int getGametick() {
+        return gametick;
+    }
+
+    public synchronized void setGametick(int gametick) {
+        this.gametick = gametick;
+    }
+
+    public synchronized int getLocaltick() {
+        return localtick;
+    }
+
+    public synchronized void setLocaltick(int localtick) {
+        this.localtick = localtick;
+    }
+
+    private void mpStart() {
+        SwingUtilities.invokeLater(() -> {
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, 4));
+        });
+    }
+
     public synchronized boolean getStart() {
         return start;
     }
@@ -253,8 +331,6 @@ public class Tetris extends JFrame implements KeyListener {
         this.start = start;
     }
 
-    private final int FRAMERATE = 15;
-    TetrisPanel tetrisPanel;
 
     synchronized public TetrisArray getTetrisArray() {
         return tetrisArray;
@@ -273,7 +349,7 @@ public class Tetris extends JFrame implements KeyListener {
         eWorker.execute();
         gTimer.start();
         worker.execute();
-        tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 3, 2));
+        //tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 3, 2));
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 class TetrisServer {
 
@@ -15,7 +16,7 @@ class TetrisServer {
     private static List<PrintWriter> outStreams;
     private static List<BufferedReader> inStreams;
     private static List<Integer> clientScores;
-    private static int gametick = 0;
+    private static int gametick = 1;
 
     public static void main(String[] args) {
         ServerSocket serverSocket = null;
@@ -26,6 +27,7 @@ class TetrisServer {
         int playerCount = 2;
         int[] scores = new int[playerCount];
         final int PORT = 5000;
+        int currentShape = 0;
 
         //Create new ServerSocket
         try {
@@ -72,24 +74,31 @@ class TetrisServer {
         writeToClients("start");
 
 
+        int[] clientsSynced = {0, 0};
         while (online) {
-            int clientsSynced = 0;
+            writeToClients("t" + String.valueOf(gametick));
+            writeToClients("sh" + String.valueOf(currentShape));
             for (int i = 0; i < inStreams.size(); i++) {
                 BufferedReader br = inStreams.get(i);
-
                 try {
-                    if (clients.get(i).getInputStream().available() != -1) {
-                        String input = br.readLine();
+                    while (br.ready()) {
+                        String input = "";
+                        input = br.readLine();
                         //System.out.println("Client " + String.valueOf(i) + ":");
                         //System.out.println(input);
-                        if (input.substring(0, 0).toLowerCase().equals("s".toLowerCase())) {
+                        if (input.substring(0, 1).toLowerCase().equals("s".toLowerCase())) {
                             scores[i] = Integer.parseInt(input.substring(1));
-                        } else if (input.substring(0, 0).toLowerCase().equals("t".toLowerCase())) {
+                        } else if (input.substring(0, 1).toLowerCase().equals("t".toLowerCase())) {
+                            //System.out.println("CT, GT: " + String.valueOf(input.substring(1) + ", " + String.valueOf(gametick)));
+                            //System.out.println(input);
                             if (Integer.parseInt(input.substring(1)) == gametick) {
-                                clientsSynced++;
+                                clientsSynced[i] = 1;
                             }
+                            //System.out.println("C" + String.valueOf(i) + ": " + input.substring(1));
                         } else if (input.toLowerCase().contains("gt")) {
                             outStreams.get(i).println("t" + String.valueOf(gametick));
+                        } else if (input.toLowerCase().contains("gs")) {
+                            outStreams.get(i).println("sh" + String.valueOf(currentShape));
                         }
 
 
@@ -99,18 +108,39 @@ class TetrisServer {
                 }
             }
 
-            if (clientsSynced == clients.size()) {
+            if (clientsSynced[0] + clientsSynced[1] == 2) {
+                System.out.println("Clients synced.");
                 gametick++;
-                //TODO: increment and sync gametick
+                currentShape = new Random().nextInt(TetrisBlock.shapes.length);
+
+                //Sync scores, very hardcoded
+                for (int i = 0; i < clients.size(); i++) {
+                    Socket client = clients.get(i);
+                    int score;
+                    if (i == 0) {
+                        score = scores[1];
+                    } else {
+                        score = scores[0];
+                    }
+                    //System.out.println("o" + String.valueOf(score) );
+                    outStreams.get(i).println("o" + String.valueOf(score));
+                }
+
+                System.out.print("Scores: [" + scores[0]);
+                for (int i = 1; i < scores.length; i++) {
+                    System.out.print(", " + scores[i]);
+                }
+                System.out.print("]\n");
+
+                clientsSynced = new int[]{0, 0};
             }
 
-            System.out.print("Scores: [" + scores[0]);
-            for (int i = 1; i < scores.length; i++) {
-                System.out.print(", " + scores[i]);
-            }
-            System.out.print("]\n");
+
+            writeToClients("t" + String.valueOf(gametick));
+            writeToClients("sh" + String.valueOf(currentShape));
+
             try {
-                Thread.sleep(500);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
