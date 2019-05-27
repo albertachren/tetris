@@ -6,47 +6,41 @@ import java.awt.*;
 import java.util.ArrayList;
 
 /**
- * Graphics class
+ * Gameplay panel class
  */
 public class TetrisPanel extends JPanel {
     private ArrayList<JPanel> pixels;
     private int res = Tetris.RES;
-    int[][] testgame = new int[res][res];
     private JPanel[][] pixelsArr = new JPanel[res][res];
 
     TetrisPanel() {
         this.setBackground(Color.WHITE);
         setLayout(new GridLayout(res, res));
         this.pixels = new ArrayList<>();
+
+        //Create the "pixels", JPanels
         for (int i = 0; i < res * res; i++) {
             Border border = BorderFactory.createLineBorder(Color.black, 1);
             JPanel panel = new JPanel();
-            panel.setBorder(border);
+            panel.setBorder(border); //Give them a border for differentiating
             this.pixels.add(panel);
             try {
                 pixelsArr[i / res][i % res] = panel;
-                /*
-                System.out.println("");
-                System.out.println(i/res);
-                System.out.println("dvi");
-                System.out.println(i);
-                System.out.println(i % res);
-                System.out.println("");*/
             } catch (Exception e) {
-                //pixelsArr[i % res][0] = panel;
                 System.out.println("error");
             }
         }
+        //Add the to the panel
         for (JPanel panel : pixels) {
             add(panel);
         }
-        //System.out.println(pixelsArr[0][1].toString());
     }
 
     int getRes() {
         return res;
     }
 
+    //Set the pixels to the right state according to the TetrisArray
     void setGraphics(TetrisArray array) {
         int[][] data = array.getData();
         for (int i = 0; i < res; i++) { //loop trough graphics array
@@ -61,6 +55,7 @@ public class TetrisPanel extends JPanel {
         }
     }
 
+    //Unused
     void setGraphics(int[][] data) {
         for (int i = 0; i < res; i++) { //loop trough graphics array
             for (int j = 0; j < res; j++) {
@@ -74,6 +69,7 @@ public class TetrisPanel extends JPanel {
         }
     }
 
+    //Unused
     void clearGraphics() {
         for (int i = 0; i < res; i++) { //loop trough graphics array
             for (int j = 0; j < res; j++) {
@@ -81,14 +77,6 @@ public class TetrisPanel extends JPanel {
                 pixelsArr[i][j].setBackground(new Color(255, 255, 255));
             }
         }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-        //g2d.setColor(Color.BLUE);
-        //g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
-
     }
 
 }

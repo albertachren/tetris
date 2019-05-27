@@ -19,7 +19,7 @@ public class GOL {
 
     private void update(int[][] array) {
         this.array = updateArray(array);
-        Tetris.tetris.tetrisPanel.setGraphics(array);
+        //Tetris.tetris.tetrisPanel.setGraphics(array);
     }
 
     private int[][] updateArray(int[][] array) {

@@ -4,21 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Gamespace class
+ * Gamespace data structure class
  */
 public class TetrisArray {
     private int[][] blockData;
-
     private int[][] pixelData;
 
-    private int res;
 
     public List<TetrisBlock> getBlocks() {
         return blocks;
     }
-
     private List<TetrisBlock> blocks = new ArrayList<TetrisBlock>();
+
     private int score = 0;
+    private int res;
 
     TetrisArray(int newRes) {
         res = newRes;
@@ -43,7 +42,6 @@ public class TetrisArray {
         //Update the array
         this.clear();
         this.updateBlocks();
-        //TODO: combine block and pixelData
     }
 
     public void setBlocks(List<TetrisBlock> blocks) {
@@ -61,19 +59,18 @@ public class TetrisArray {
         return string.toString();
     }
 
-    boolean moveBlocks(int direction) { //TODO: Doc
-        //for (TetrisBlock block : blocks) {}
-        TetrisBlock block = blocks.get(blocks.size() - 1);
+    //Move the current block
+    boolean moveBlocks(int direction) {
+        TetrisBlock block = blocks.get(blocks.size() - 1); //Get the active block
         switch (direction) {
             case TetrisBlock.DOWN:
                 if ((block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) || collisionCheck(block, TetrisBlock.DOWN)) { // check if shape is out of area
-                    return false;
+                    return false; //Exit
                 }
-                block.x = block.x + 1;
+                block.x = block.x + 1; //If check cleared, increment coordinate
                 break;
             case TetrisBlock.LEFT:
                 if ((block.shape.length + block.x > this.res || block.y - 1 < 0) || collisionCheck(block, TetrisBlock.LEFT)) { // check if shape is out of area
-                    //System.out.println("shape out");
                     return false;
                 }
                 block.y = block.y - 1;
@@ -85,38 +82,24 @@ public class TetrisArray {
                 }
                 block.y = block.y + 1;
                 break;
-            case TetrisBlock.UP:
+            case TetrisBlock.UP: //Unused
                 block.x = block.x - 1;
                 break;
         }
-        //System.out.println("block x coordinate: " + String.valueOf(block.x));
-        //System.out.println("block y coordinate: " + String.valueOf(block.y));
         return true;
     }
 
-    private boolean collisionCheck(TetrisBlock block, int direction) { //TODO: x & y parameters clarity & documentation
+    //Check for collision between two blocks
+    private boolean collisionCheck(TetrisBlock block, int direction) {
         boolean collision = false;
         switch (direction) {
             case TetrisBlock.DOWN:
                 int i = block.shape.length - 1;
                 for (int j = 0; j < block.shape[0].length; j++) {
-                    //setPixel(block.x+block.shape.length, j+block.y, 2);
-
-                    if ((blockData[block.x + block.shape.length][j + block.y] == 1 && block.shape[i][j] == 1)) {
+                    if ((blockData[block.x + block.shape.length][j + block.y] == 1 && block.shape[i][j] == 1)) { //If there is another block right beneath any of the lowest pixels in the shape
                         collision = true;
                     }
-                        /*
-                        else if(block.shape[i][j] == blockData[i+block.x][j+block.y]){
-                            collision =
-                        }*/
                 }
-                /*
-                for (int j = 0; j < block.shape[0].length; j++) {
-                    if (blockData[block.x + block.shape.length][block.y + j] == 1) {
-                        collision = true;
-                    }
-                }*/
-
                 break;
             case TetrisBlock.LEFT:
                 for (int j = 0; j < block.shape[0].length; j++) {

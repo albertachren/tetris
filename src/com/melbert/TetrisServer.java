@@ -10,21 +10,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Server class
+ */
 class TetrisServer {
 
     final static int PORT = 5000;
-    public static TetrisServer server;
-    ServerSocket serverSocket = null;
-    int playerCount = 2;
-    int[] scores = new int[playerCount];
-    int currentShape = 0;
+
     private List<Socket> clients;
     private List<PrintWriter> outStreams;
     private List<BufferedReader> inStreams;
     private List<Integer> clientScores;
+
+    public static TetrisServer server;
+    int playerCount = 2;
+    int[] scores = new int[playerCount];
+    int currentShape = 0;
+    private ServerSocket serverSocket = null;
     private int gametick = 1;
 
     public TetrisServer() {
+        //Lists for clients, their I/O streams and their scores
         clients = new ArrayList<>();
         outStreams = new ArrayList<>();
         inStreams = new ArrayList<>();
@@ -68,64 +74,70 @@ class TetrisServer {
 
     public static void main(String[] args) {
         server = new TetrisServer();
-        while (true) {
+        while (true) { //Looped in order to play several games
             server.runGame();
         }
     }
 
     private void runGame() {
-        //Work loop
+
+        //Setup
+        currentShape = new Random().nextInt(TetrisBlock.shapes.length); //Generate a new random shape
+        writeToClients("h" + String.valueOf(currentShape)); //Send the new shape to clients
+        writeToClients("start"); //Send the game starting command to clients
+
+        //Loop
         boolean online = true;
 
-        //TODO: Setup
-        currentShape = new Random().nextInt(TetrisBlock.shapes.length);
-        writeToClients("h" + String.valueOf(currentShape));
-        writeToClients("start");
-
-        int[] clientsSynced = {0, 0};
-        int[] clientsState = {0, 0};
+        int[] clientsSynced = {0, 0}; //The two clients' sync state, DEPRECATED
+        int[] clientsState = {0, 0}; //The two clients' game states
         while (online) {
-            writeToClients("h" + String.valueOf(currentShape));
-            for (int i = 0; i < inStreams.size(); i++) {
-                BufferedReader br = inStreams.get(i);
+            writeToClients("h" + String.valueOf(currentShape)); //Send the current shape to clients
+            for (int i = 0; i < inStreams.size(); i++) { //Alternatingly parse each client's inputs
+                BufferedReader br = inStreams.get(i); //Get the input stream
                 try {
-                    while (br.ready()) {
+                    while (br.ready()) { //While there is data
                         String input = "";
-                        input = br.readLine();
+                        input = br.readLine(); //Read next data
+
+                        //Receive and assign score data
                         if (input.substring(0, 1).toLowerCase().equals("s".toLowerCase())) {
                             scores[i] = Integer.parseInt(input.substring(1));
 
+                            //Receive and assing local tick data, DEPRECATED
                         } else if (input.substring(0, 1).toLowerCase().equals("t".toLowerCase())) {
                             if (Integer.parseInt(input.substring(1)) == gametick) {
                                 clientsSynced[i] = 1;
                             }
 
+                            //Receive request for global tick
                         } else if (input.toLowerCase().contains("gt")) {
-                            outStreams.get(i).println("t" + String.valueOf(gametick));
+                            outStreams.get(i).println("t" + String.valueOf(gametick)); //Send global tick
 
+                            //Receive request for current shape
                         } else if (input.toLowerCase().contains("gs")) {
-                            outStreams.get(i).println("h" + String.valueOf(currentShape));
+                            outStreams.get(i).println("h" + String.valueOf(currentShape)); //Send current shape
 
+                            //Receive and assign state data
                         } else if (input.toLowerCase().contains("x")) {
                             clientsState[i] = Integer.parseInt(input.substring(1));
 
                         }
-
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if (clientsState[0] == Tetris.GROUNDED && clientsState[1] == Tetris.GROUNDED) {
-                syncScores(scores);
-                currentShape = new Random().nextInt(TetrisBlock.shapes.length);
-                writeToClients("h" + String.valueOf(currentShape));
-                writeToClients("ready");
+            if (clientsState[0] == Tetris.GROUNDED && clientsState[1] == Tetris.GROUNDED) { //If both clients have placed their blocks
+                syncScores(scores); //Sync scores between clients
+                currentShape = new Random().nextInt(TetrisBlock.shapes.length); //Generate a new shape
+                writeToClients("h" + String.valueOf(currentShape)); //Send new shape
+                writeToClients("ready"); //Send the ready-to-spawn-new-block command
             }
 
+            //Check if one of the clients has lost and tell the other
             if (clientsState[0] == Tetris.LOSS) {
-                syncScores(scores);
+                syncScores(scores); //Sync scores too
                 outStreams.get(1).println("victor");
                 online = false;
             } else if (clientsState[1] == Tetris.LOSS) {
@@ -134,7 +146,7 @@ class TetrisServer {
                 online = false;
             }
 
-
+            //Determine if clients are synced, DEPRECATED
             if (clientsSynced[0] + clientsSynced[1] == 2) {
                 System.out.println("Clients synced.");
                 gametick++;
@@ -151,8 +163,9 @@ class TetrisServer {
         }
     }
 
+    //Sync scores between the clients
     private void syncScores(int[] scores) {
-        for (int i = 0; i < clients.size(); i++) {
+        for (int i = 0; i < clients.size(); i++) { //Send one client the other's score, alternatingly
             Socket client = clients.get(i);
             int score;
             if (i == 0) {
@@ -164,6 +177,7 @@ class TetrisServer {
         }
     }
 
+    //Send data to both clients
     private void writeToClients(String string) {
         for (PrintWriter pw : outStreams) {
             pw.println(string);
@@ -171,5 +185,3 @@ class TetrisServer {
     }
 }
 
-
-//TODO: Encoding and decoding system
