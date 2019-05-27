@@ -11,9 +11,10 @@ public class TetrisBlock {
     //All shapes
     public static final int[][][] shapes = {
             {{1, 1}, {1, 1}},
-            {{0, 1}, {1, 1}, {1, 0}},
-            {{1}, {1}, {1, 1}},
-            {{0, 1, 0}, {1, 1, 1}}
+            {{0, 1, 0}, {1, 1, 0}, {1, 0, 0}},
+            {{1, 0, 0}, {1, 0, 0}, {1, 1, 0}},
+            {{0, 0, 1}, {0, 1, 1}, {0, 0, 1}},
+            {{1}, {1}, {1}, {1}}
     };
     public static final int BLOCK = 0;
     public static final int S = 1;
@@ -23,7 +24,7 @@ public class TetrisBlock {
     public static final int[][] BM_SHAPE = {{0, 1, 0}, {1, 1, 1}, {1, 0, 1}};
     static final int[][] BLOCK_SHAPE = {{1, 1}, {1, 1}};
     static final int[][] BIG_LINE_SHAPE = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-    static final int[][] L_SHAPE = {{1}, {1}, {1, 1}};
+    static final int[][] L_SHAPE = {{1, 0}, {1, 0}, {1, 1}};
     static final int[][] SHIP_SHAPE = {{0, 1, 0}, {1, 1, 1}};
 
     static final int RIGHT = 2;
@@ -36,6 +37,11 @@ public class TetrisBlock {
     int x;
     int y;
     Color color = Color.red;
+    int rotate = 0;
+
+    public int getRotate() {
+        return rotate % 4;
+    }
 
     TetrisBlock(int[][] shape, int x, int y) {
         this.shape = shape;

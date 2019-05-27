@@ -14,6 +14,7 @@ public class TetrisArray {
     public List<TetrisBlock> getBlocks() {
         return blocks;
     }
+
     private List<TetrisBlock> blocks = new ArrayList<TetrisBlock>();
 
     private int score = 0;
@@ -77,7 +78,6 @@ public class TetrisArray {
                 break;
             case TetrisBlock.RIGHT:
                 if ((block.shape.length + block.x > this.res || block.shape[0].length + block.y + 1 > this.res) || collisionCheck(block, TetrisBlock.RIGHT)) { // check if shape is out of area
-                    //System.out.println("shape out");
                     return false;
                 }
                 block.y = block.y + 1;
@@ -133,7 +133,20 @@ public class TetrisArray {
         blocks.add(block);
     }
 
-    private void updateBlocks() { //TODO: Doc
+    private static void mirror(int[][] array) {
+        for (int i = 0; i < (array.length / 2); i++) {
+            int[] temp = array[i];
+            array[i] = array[array.length - i - 1];
+            array[array.length - i - 1] = temp;
+        }
+    }
+
+    synchronized public int getRes() {
+        return res;
+    }
+
+    //Update the array with the blocks in the list
+    private void updateBlocks() {
         for (int i1 = 0; i1 < blocks.size(); i1++) {
             TetrisBlock block = blocks.get(i1);
             int sizex = block.shape.length;
@@ -149,12 +162,27 @@ public class TetrisArray {
         }
     }
 
-    synchronized public int getRes() {
-        return res;
+    void rotate() {
+        TetrisBlock block = blocks.get(blocks.size() - 1);
+        if (block.x < 1) return;
+        if (block.getRotate() == 1 || block.getRotate() == 3) {
+            mirror(block.shape);
+        }
+        int m = block.shape.length;
+        int n = block.shape[0].length;
+
+        int[][] rotated = new int[n][m];
+
+        for (int x = 0; x < n; x++) {
+            for (int y = 0; y < m; y++) {
+                rotated[x][y] = block.shape[y][x];
+            }
+        }
+        blocks.get(blocks.size() - 1).shape = rotated;
+        blocks.get(blocks.size() - 1).rotate++;
     }
 
-    //TODO: ROTATE
-
+    //Clear the array
     void clear() {
         for (int i = 0; i < this.blockData.length; i++) {
             for (int j = 0; j < this.blockData[0].length; j++) {
@@ -164,27 +192,10 @@ public class TetrisArray {
     }
 
     int[][] getData() {
-        //might have to sum arrays
         return blockData;
     }
 
     void clearBlocks() {
-        /*
-        for (TetrisBlock block : blocks) {
-            int sizex = block.shape.length;
-            int sizey = block.shape[0].length;
-            for (int i = 0; i < sizex; i++) {
-                for (int j = 0; j < sizey; j++) {
-                    try {
-                        blockData[block.x + i][block.y + j] = 0;
-                    } catch (Exception e) {
-                        System.out.println("error clearBlock");
-
-                    }
-                }
-            }
-        }
-        System.out.println(toString());*/
         blocks.clear();
     }
 
@@ -210,52 +221,38 @@ public class TetrisArray {
                 }
             }
             if (lineFull) {
-                //clearLine(i);
-                moveBottomDown();
+                moveDown();
                 score++;
             }
         }
     }
 
+    void moveDown() {
+        for (TetrisBlock block : blocks) {
+            block.x = block.x + 1;
+        }
+
+
+    }
+
     private void moveBottomDown() {
         for (TetrisBlock block : blocks) {
             if (block.x + block.shape[0].length >= res) {
-                //if ((block.shape.length + block.x + 1 > this.res || block.shape[0].length + block.y > this.res) || collisionCheck(block, TetrisBlock.DOWN)) { // check if shape is out of area
-                //    return;
-                //}
                 block.x = block.x + 1;
             }
         }
     }
 
     private void clearLine(int line) { //clear a single horizontal line
-        //System.out.println("line: ");
-        //System.out.println(line);
         for (int i = 0; i < this.blockData[line].length; i++) {
             this.blockData[line][i] = 0;
-            //System.out.println("index: " + String.valueOf(i));
         }
 
     }
 
     public void setPixel(int x, int y, int state) {
         blockData[x][y] = state;
-        //System.out.println(String.format("[%d, %d]: %d", x, y, state));
     }
 
-    void moveDown() { //move all pixels and transparent pixels downwards
-        for (int i = 0; i < res - 1; i++) {
-            for (int j = 0; j < res; j++) {
-                if (blockData[i][j] == 1 && !(blockData[i + 1][j] == 1)) {
-                    blockData[i + 1][j] = 1;
-                    blockData[i][j] = 0;
-                } else if (blockData[i][j] == 2 && !(blockData[i + 1][j] == 20)) {
-                    blockData[i + 1][j] = 2;
-                    blockData[i][j] = 0;
-                }
-            }
-        }
 
-
-    }
 }

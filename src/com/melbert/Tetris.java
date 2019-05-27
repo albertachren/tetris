@@ -20,7 +20,7 @@ public class Tetris extends JFrame implements KeyListener {
     public static final int DROPPED = 3;
     public static final int LOSS = 4;
     public static final int WIN = 5;
-    public static final int RES = 20;
+    public static final int RES = 15;
     public static final int MIDDLE = RES / 2 - 1;
     public static final String ADRESS = "192.168.1.162";
     private static final int FRAMERATE = 15;
@@ -438,6 +438,9 @@ public class Tetris extends JFrame implements KeyListener {
                     break;
                 case 40:
                     tetrisArray.moveBlocks(TetrisBlock.DOWN);
+                    break;
+                case 32:
+                    tetrisArray.rotate();
                     break;
             }
         }
