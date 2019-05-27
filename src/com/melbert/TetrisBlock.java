@@ -36,6 +36,7 @@ public class TetrisBlock {
     static final int UP = 3;
 
     int[][] shape;
+    int shapeN;
     int x;
     int y;
     Color color = Color.red;
@@ -46,9 +47,30 @@ public class TetrisBlock {
         this.y = y;
     }
 
+    TetrisBlock(int[][] shape, int x, int y, Color color) {
+        this.shape = shape;
+        this.x = x;
+        this.y = y;
+        this.color = color;
+    }
+
+    TetrisBlock(int[][] shape, int x, int y, Color color, int shapeN) {
+        this.shape = shape;
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.shapeN = shapeN;
+    }
+
     public static int[][] getRandomShape() {
         Random random = new Random();
         int randomInt = random.nextInt(shapes.length);
         return shapes[randomInt];
+    }
+
+    public static int getRandomShapeNumber() {
+        Random random = new Random();
+        int randomInt = random.nextInt(shapes.length);
+        return randomInt;
     }
 }

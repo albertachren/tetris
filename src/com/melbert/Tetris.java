@@ -23,23 +23,69 @@ public class Tetris extends JFrame implements KeyListener {
     private Timer gTimer;
     private SwingWorker worker;
     private SwingWorker eWorker;
-    private final int LOGIC = 2;
+    static final int WAITING = 0;
+    static final int GROUNDED = 2;
     int currentShape;
     TetrisPanel tetrisPanel;
-    //private int score = 0;
-    private boolean connected = false;
     private int gametick = 0;
     private int localtick = 0;
     private int oppscore = 0;
-    private int prevGameTick = 0;
+    static final int DROPPED = 3;
+    static final int LOSS = 4;
+    static final int WIN = 5;
+    static final int RES = 20;
+    static final int MIDDLE = RES / 2 - 1;
+    private final int LOGIC = 3;
+    int state = 0;
+    private boolean online = false;
+    private boolean loss = false;
+    private boolean connected;
 
     public Tetris() {
         JButton btn1;
         JPanel game;
         this.addKeyListener(this);
         tetrisPanel = new TetrisPanel();
+
+        JMenuBar mb = new JMenuBar();
+        JMenu file = new JMenu("File");
+        JMenuItem save = new JMenuItem("Save");
+        JMenuItem load = new JMenuItem("Load");
+        JMenu gameMenu = new JMenu("Game");
+        JMenuItem start = new JMenuItem("Start");
+        JMenuItem connect = new JMenuItem("Connect to server");
+
+        save.addActionListener(ev -> {
+            new TetrisDB("savegame.txt").saveGame(tetrisArray);
+            JOptionPane.showMessageDialog(null,
+                    "Game saved.");
+        });
+        load.addActionListener(ev -> {
+            try {
+                tetrisArray.setBlocks(new TetrisDB("savegame.txt").loadGame());
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null,
+                        "Loading failed.", "Error", JOptionPane.ERROR_MESSAGE);
+                System.out.println("Loading failed.");
+            }
+        });
+        start.addActionListener(ev -> startGame());
+
+        connect.addActionListener(ev -> connect());
+
+
+        file.add(save);
+        file.add(load);
+        gameMenu.add(start);
+        gameMenu.add(connect);
+        mb.add(file);
+        mb.add(gameMenu);
+
+        mb.setBorderPainted(true);
+        setJMenuBar(mb);
+
+
         setLayout(new GridBagLayout());
-        setMinimumSize(new Dimension(200, 200));
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = 0.1;
         c.weighty = 0.1;
@@ -55,7 +101,7 @@ public class Tetris extends JFrame implements KeyListener {
         c.gridy = 2;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = 0;
-        add(btn1, c);
+        //add(btn1, c);
 
         JButton btn2 = new JButton("CLEAR");
         btn2.setFocusable(false);
@@ -70,100 +116,74 @@ public class Tetris extends JFrame implements KeyListener {
         c.gridy = 3;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = 0;
-        add(btn2, c);
+        //add(btn2, c);
 
-        /*
-        JButton btn3 = new JButton("F1");
-        btn3.setFocusable(false);
-        btn3.addActionListener(e -> {
-            //tetrisArray.moveDown();
-            //tetrisArray.moveBlocks(TetrisBlock.DOWN);
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[TetrisBlock.L], 2, 2));
-            System.out.println("Array: ");
-            System.out.println(tetrisArray.toString());
-        });*/
-
-        JTextArea txtSelf = new JTextArea();
+        JLabel txtSelf = new JLabel("-");
 
         c.gridx = 1;
         c.gridy = 0;
         c.anchor = GridBagConstraints.CENTER;
-        c.fill = 0;
+        c.fill = GridBagConstraints.NONE;
+        c.insets = new Insets(0, 10, 0, 20);
         add(txtSelf, c);
 
-        /*
-        JButton btn4 = new JButton("F2");
-        btn4.setFocusable(false);
-        btn4.addActionListener(e -> {
-            tetrisArray.setPixel(0, 0, 1);
-            System.out.println(tetrisArray.toString());
-        });*/
-
-        JTextArea txtOpp = new JTextArea("-");
+        JLabel txtOpp = new JLabel("-");
 
         c.gridx = 1;
         c.gridy = 1;
         c.anchor = GridBagConstraints.CENTER;
-        c.fill = 0;
+        c.fill = GridBagConstraints.NONE;
         add(txtOpp, c);
+
 
         game = tetrisPanel;
         c.gridx = 0;
         c.gridy = 0;
         c.gridheight = GridBagConstraints.REMAINDER;
-        c.fill = GridBagConstraints.BOTH;
-        c.insets = new Insets(10, 10, 10, 10);
+        c.fill = GridBagConstraints.NONE;
+        c.insets = new Insets(0, 0, 0, 0);
+
+        int dim = RES * 20;
+        game.setMinimumSize(new Dimension(dim, dim));
+        game.setPreferredSize(new Dimension(dim, dim));
         add(game, c);
 
         c.gridheight = GridBagConstraints.RELATIVE; //reset
 
-        //game.setBackground(Color.BLUE);
-        game.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+        int fakePadding = 10;
+        game.setBorder(BorderFactory.createEmptyBorder(fakePadding, fakePadding, fakePadding, fakePadding));
+
         try {
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
-        //TODO: Save game button and function
+        setTitle("Tetris");
+        setResizable(false);
         pack();
+
         setFocusable(true);
         setAlwaysOnTop(true);
         setVisible(true);
         requestFocus();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        /*
-        Timer mainTimer = new Timer(1000 / FRAMERATE, e -> {
-            tetrisArray.update();
-            tetrisPanel.setGraphics(tetrisArray); //master setGraphics
-        });
-        mainTimer.start();
-        *//*
-        Timer secondaryTimer = new Timer(300, e -> {
-            boolean result = true;
-            try {
-                result = tetrisArray.moveBlocks(TetrisBlock.DOWN);
-            } catch (Exception ignored) {
-            }
-            if (!result) {
-                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 0, 4));
-            }
-            tetrisArray.findWhole();
-        });
-        secondaryTimer.start();
-        */
+
         gTimer = new javax.swing.Timer(1000 / FRAMERATE, e -> {
-            tetrisPanel.setGraphics(tetrisArray); //master setGraphics
+            tetrisPanel.setGraphics(tetrisArray);
             txtSelf.setText(String.valueOf(tetrisArray.getScore()));
-            txtOpp.setText(String.valueOf(oppscore));
+            if (online) {
+                txtOpp.setText(String.valueOf(oppscore));
+                save.setEnabled(false);
+                load.setEnabled(false);
+            }
+            revalidate();
+            pack();
         });
 
         worker = new SwingWorker<Void, Void>() {
-            //TODO: Threads working
             @Override
             public Void doInBackground() {
-                while (!getStart()) {
-                } //TODO: Better waiting
                 System.out.println("Array worker starting.");
                 java.util.Timer mainTimer = new java.util.Timer();
                 mainTimer.scheduleAtFixedRate(new TimerTask() {
@@ -177,38 +197,40 @@ public class Tetris extends JFrame implements KeyListener {
                 secondaryTimer.scheduleAtFixedRate(new TimerTask() {
                     @Override
                     public void run() {
-                        boolean result = true;
-                        try {
-                            result = tetrisArray.moveBlocks(TetrisBlock.DOWN);
-                        } catch (Exception ignored) {
-                        }
-                        if (!result) {
-                            //currentBlock = false;
-                            0 System.out.println("cannot move blocks");
-                            /*if(prevGameTick != gametick){
-                                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, 4));
-                                prevGameTick++;
-
-                            }*/
-                            if (getLocaltick() < getGametick()) {
-                                tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, 4));
-                                System.out.println("L, G: " + String.valueOf(getLocaltick()) + ", " + String.valueOf(getGametick()));
-                                setLocaltick(getLocaltick() + 1);
-                                System.out.println("LT incremented to: " + String.valueOf(getLocaltick()));
+                        if (state != LOSS && state != WIN) {
+                            boolean result = true;
+                            try {
+                                result = tetrisArray.moveBlocks(TetrisBlock.DOWN);
+                            } catch (Exception ignored) {
                             }
+                            if (!result) {
+                                if (tetrisArray.getBlocks().get(tetrisArray.getBlocks().size() - 1).x == 0) {
+                                    state = LOSS;
+                                    if (online) {
+                                        JOptionPane.showMessageDialog(null, "You lost. Your score: "
+                                                + String.valueOf(tetrisArray.getScore())
+                                                + ", Opponent score: " + String.valueOf(oppscore));
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "You lost. Score: " + String.valueOf(tetrisArray.getScore()));
+                                    }
 
+                                } else if (!online) {
+                                    int n = TetrisBlock.getRandomShapeNumber();
+                                    tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[n], 0, MIDDLE, Color.GREEN, n));
+                                } else {
+                                    if (state == WAITING) {
+                                        tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, MIDDLE, Color.red, currentShape));
+                                        state = DROPPED;
+                                    } else if (state == DROPPED) {
+                                        state = GROUNDED;
+                                    }
+
+                                }
+                            }
+                            tetrisArray.findWhole();
                         }
-                        tetrisArray.findWhole();
                     }
                 }, 0, 1000 / LOGIC);
-                return null;
-            }
-
-            @Override
-            public void done() {
-            }
-
-            protected Void process() {
                 return null;
             }
         };
@@ -220,6 +242,8 @@ public class Tetris extends JFrame implements KeyListener {
                 BufferedReader in = null;
                 PrintWriter out = null;
                 Socket socket = null;
+                save.setEnabled(false);
+                load.setEnabled(false);
 
                 System.out.println("Trying connection.");
                 boolean connecting = true;
@@ -243,27 +267,16 @@ public class Tetris extends JFrame implements KeyListener {
 
                 System.out.println("Connection successful.");
                 connected = true;
+                setTitle("Tetris Online");
 
                 //Setup
                 out.println("gs");
 
-                boolean online = true;
-                while (online) {
-                    System.out.println(getGametick());
-                    //System.out.println("LT, GT:" + String.valueOf(localtick) + ", " + String.valueOf(gametick));
-
-                    //System.out.println("-Looped.");
-                    /*if(localtick != gametick){
-                        out.println("gs");
-                    }*/
-                    //out.println("gs");
-
-                    /*
-                    System.out.println("GT: " + String.valueOf(gametick));
-                    System.out.println("LT: " + String.valueOf(localtick));*/
+                boolean onlineLoop = true;
+                while (onlineLoop) {
                     while (in.ready()) {
                         String input = in.readLine();
-                        //System.out.println(input);
+
                         if (input.toLowerCase().equals("Test".toLowerCase())) {
                             out.println("Client test response.");
 
@@ -274,25 +287,38 @@ public class Tetris extends JFrame implements KeyListener {
 
                         } else if (input.substring(0, 1).equals("t")) {
                             setGametick(Integer.parseInt(input.substring(1)));
-                            //System.out.println(gametick);
 
-                        } else if (input.substring(0, 1).equals("sh")) {
+                        } else if (input.substring(0, 1).equals("h")) {
                             currentShape = Integer.parseInt(input.substring(1));
 
                         } else if (input.substring(0, 1).equals("o")) {
                             oppscore = Integer.parseInt(input.substring(1));
+
+                        } else if (input.contains("ready") && state == GROUNDED) {
+                            state = WAITING;
+
+                        } else if (input.contains("victor")) {
+                            JOptionPane.showMessageDialog(null, "You won. Your score: "
+                                    + String.valueOf(tetrisArray.getScore())
+                                    + ", Opponent score: " + String.valueOf(oppscore));
+                            state = WIN;
+                            onlineLoop = false;
+                            break;
                         }
 
                     }
 
 
+                    out.println("x" + String.valueOf(state));
                     out.println("s" + String.valueOf(tetrisArray.getScore()));
-                    //System.out.println(String.valueOf(getLocaltick()));
                     out.println("t" + String.valueOf(getLocaltick()));
-                    //out.println("gt");
-                    Thread.sleep(1);
+                    if (state == LOSS) {
+                        break;
+                    }
                 }
-
+                online = false;
+                save.setEnabled(true);
+                load.setEnabled(true);
                 return null;
             }
 
@@ -317,10 +343,13 @@ public class Tetris extends JFrame implements KeyListener {
         this.localtick = localtick;
     }
 
-    private void mpStart() {
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, 4));
+            tetris = new Tetris();
+            tetris.tetrisArray = new TetrisArray(tetris.tetrisPanel.getRes());
+            tetris.gTimer.start();
         });
+
     }
 
     public synchronized boolean getStart() {
@@ -336,20 +365,28 @@ public class Tetris extends JFrame implements KeyListener {
         return tetrisArray;
     }
 
-    public static void main(String[] args) {
+    private void mpStart() {
         SwingUtilities.invokeLater(() -> {
-            tetris = new Tetris();
-            tetris.tetrisArray = new TetrisArray(tetris.tetrisPanel.getRes());
-            tetris.startGame();
+            tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[currentShape], 0, MIDDLE, Color.red, currentShape));
+            state = DROPPED;
         });
-
     }
 
     private void startGame() {
-        eWorker.execute();
-        gTimer.start();
+        tetrisArray.clearBlocks();
+        int n = TetrisBlock.getRandomShapeNumber();
+        tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.shapes[n], 0, MIDDLE, Color.GREEN, n));
+        state = DROPPED;
         worker.execute();
-        //tetrisArray.insertBlock(new TetrisBlock(TetrisBlock.getRandomShape(), 3, 2));
+    }
+
+    private void connect() {
+        state = WAITING;
+        online = true;
+        tetrisArray = new TetrisArray(RES);
+        setTitle("Connecting...");
+        worker.execute();
+        eWorker.execute();
     }
 
     @Override
@@ -359,19 +396,21 @@ public class Tetris extends JFrame implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case 37:
-                tetrisArray.moveBlocks(TetrisBlock.LEFT);
-                break;
-            case 38:
-                //tetrisArray.moveBlocks(TetrisBlock.UP);
-                break;
-            case 39:
-                tetrisArray.moveBlocks(TetrisBlock.RIGHT);
-                break;
-            case 40:
-                tetrisArray.moveBlocks(TetrisBlock.DOWN);
-                break;
+        if (!tetrisArray.getBlocks().isEmpty()) {
+            switch (e.getKeyCode()) {
+                case 37:
+                    tetrisArray.moveBlocks(TetrisBlock.LEFT);
+                    break;
+                case 38:
+                    //tetrisArray.moveBlocks(TetrisBlock.UP);
+                    break;
+                case 39:
+                    tetrisArray.moveBlocks(TetrisBlock.RIGHT);
+                    break;
+                case 40:
+                    tetrisArray.moveBlocks(TetrisBlock.DOWN);
+                    break;
+            }
         }
     }
 

@@ -10,17 +10,15 @@ import java.util.ArrayList;
  */
 public class TetrisPanel extends JPanel {
     private ArrayList<JPanel> pixels;
-    private int res = 12;
+    private int res = Tetris.RES;
     int[][] testgame = new int[res][res];
     private JPanel[][] pixelsArr = new JPanel[res][res];
 
     TetrisPanel() {
         this.setBackground(Color.WHITE);
         setLayout(new GridLayout(res, res));
-        GridBagConstraints c = new GridBagConstraints();
         this.pixels = new ArrayList<>();
         for (int i = 0; i < res * res; i++) {
-
             Border border = BorderFactory.createLineBorder(Color.black, 1);
             JPanel panel = new JPanel();
             panel.setBorder(border);

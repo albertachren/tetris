@@ -12,6 +12,11 @@ public class TetrisArray {
     private int[][] pixelData;
 
     private int res;
+
+    public List<TetrisBlock> getBlocks() {
+        return blocks;
+    }
+
     private List<TetrisBlock> blocks = new ArrayList<TetrisBlock>();
     private int score = 0;
 
@@ -41,12 +46,8 @@ public class TetrisArray {
         //TODO: combine block and pixelData
     }
 
-    private void clear() {
-        for (int i = 0; i < this.blockData.length; i++) {
-            for (int j = 0; j < this.blockData[0].length; j++) {
-                this.blockData[i][j] = 0;
-            }
-        }
+    public void setBlocks(List<TetrisBlock> blocks) {
+        this.blocks = blocks;
     }
 
     @Override
@@ -171,7 +172,21 @@ public class TetrisArray {
 
     //TODO: ROTATE
 
-    private void clearBlocks() {
+    void clear() {
+        for (int i = 0; i < this.blockData.length; i++) {
+            for (int j = 0; j < this.blockData[0].length; j++) {
+                this.blockData[i][j] = 0;
+            }
+        }
+    }
+
+    int[][] getData() {
+        //might have to sum arrays
+        return blockData;
+    }
+
+    void clearBlocks() {
+        /*
         for (TetrisBlock block : blocks) {
             int sizex = block.shape.length;
             int sizey = block.shape[0].length;
@@ -186,12 +201,8 @@ public class TetrisArray {
                 }
             }
         }
-        System.out.println(toString());
-    }
-
-    int[][] getData() {
-        //might have to sum arrays
-        return blockData;
+        System.out.println(toString());*/
+        blocks.clear();
     }
 
     private void deactivateBlocks() {
